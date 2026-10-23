@@ -758,7 +758,7 @@ function bust(g, ox, oy, o, now) {
   P(g, o.suit, ox + 70, oy + 88 - b, 12, 26); thumbUp(g, ox + 68, oy + 60 - b, o.suit);
 }
 const CHAIRMEN = {
-  lee: { name: '이재용 회장', rx: 23, ry: 27, suit: '#1f2540', suit2: '#2c3358', tie: '#2a4a9a', brow: '#2a2020', browW: 2,
+  lee: { name: '삼송그룹 이재벌 회장', rx: 23, ry: 27, suit: '#1f2540', suit2: '#2c3358', tie: '#2a4a9a', brow: '#2a2020', browW: 2,
     hair(g, cx, fy) { // 단정한 검은 머리, 2:8 가르마
       const H = '#17171d', HL = '#34343f';
       ell(g, cx, fy - 15, 25, 16, H, fy - 12);
@@ -777,7 +777,7 @@ const CHAIRMEN = {
       const M = '#a8584a';
       P(g, M, cx - 7, fy + 14, 14, 1); P(g, M, cx - 9, fy + 13, 2, 1); P(g, M, cx + 7, fy + 13, 2, 1); P(g, '#c97a6a', cx - 5, fy + 15, 10, 1);
     } },
-  chey: { name: '최태원 회장', rx: 21, ry: 31, jaw: true, suit: '#2a2a30', suit2: '#3c3c46', tie: '#c8102e', brow: '#3a3438', browW: 3,
+  chey: { name: '에스케이짱 최부자 회장', rx: 21, ry: 31, jaw: true, suit: '#2a2a30', suit2: '#3c3c46', tie: '#c8102e', brow: '#3a3438', browW: 3,
     hair(g, cx, fy) { // 뒤로 넘긴 은발, 넓은 이마
       const H = '#cfcfd6', HD = '#9c9ca8', HL = '#f2f2f6';
       ell(g, cx, fy - 22, 24, 16, H, fy - 18);
@@ -1008,7 +1008,7 @@ function tenEndScreen() {
     if (!RM()) requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
-  if (win) { fireworks(); sparkle(); const ft = $('#fx .fx-text'); if (ft) ft.textContent = '🙏 ' + HL[1] + '!'; }
+  if (win) { fireworks(); sparkle(); const ft = $('#fx .fx-text'); if (ft) ft.remove(); } // 큰 헤드라인이 이미 있어서 배너는 생략 (회장님들 안 가리게)
   else {
     const lines = SHARK_LINES[tp.sh], box = $('#shark-talk'); let i = 0;
     const next = () => { if (rid !== RID || !box.isConnected || i >= lines.length) return;
