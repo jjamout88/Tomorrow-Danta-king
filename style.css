@@ -184,3 +184,35 @@ canvas.scene{width:128px;height:72px;image-rendering:pixelated;flex:none;border:
 .fx-flat{background:rgba(120,120,140,.28)}
 .fx-flat .zz{position:absolute;top:-10px;color:#c8c8d8;font-size:18px;animation:snow 1.6s steps(8) forwards}
 .fx-text.flat{text-shadow:3px 3px 0 #30305c}
+.cine-names{position:absolute;left:0;right:0;bottom:24%;display:flex;justify-content:space-around;font-size:13px;color:#ffd23f;text-shadow:2px 2px 0 #000}
+.cine-names span{background:rgba(27,27,47,.85);border:2px solid #ffd23f;padding:1px 6px}
+/* ⚔️ 10일의 전사 */
+.modes{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.mode-card{background:var(--panel);border:3px solid var(--line);box-shadow:4px 4px 0 var(--line);padding:10px}
+.mode-card.ten{border-color:var(--gold)}
+.mode-name{font-size:18px;color:var(--gold)}
+.mode-desc{font-size:12px;margin:2px 0 6px}
+.ten-intro{font-size:13px;line-height:1.5;border-color:var(--gold)}
+.ten-line{font-size:13px;border-color:var(--gold)}
+.combo.ten-d{background:#5a2a8a}
+#hud-bar{position:relative;height:14px;margin:4px 10px 0;border:2px solid var(--gold);background:#1b1b2f}
+#hud-fill{height:100%;width:0;background:repeating-linear-gradient(90deg,#ff4d4d 0 6px,#ff9a3c 6px 12px);transition:width .6s steps(6)}
+#hud-fill.done{background:repeating-linear-gradient(90deg,#ffd23f 0 6px,#fff 6px 12px)}
+#hud-goal{position:absolute;inset:0;font-size:10px;line-height:10px;text-align:center;color:#fff;text-shadow:1px 1px 0 #000}
+.ten-day{font-size:44px;text-align:center;margin:8px 0 0;color:#ffd23f;text-shadow:3px 3px 0 #30305c;animation:pop .5s steps(3)}
+.ten-day small{font-size:16px;margin-left:4px}
+.ten-day.down{color:#5fa0ff}
+.ten-react{text-align:center;font-size:14px}
+.ten-react.up{border-color:#ff4d4d}.ten-react.down{border-color:#4d8dff}
+.god-title{font-size:30px;color:#ffd23f;text-shadow:3px 3px 0 #c8102e;animation:pop .6s steps(3) 2;line-height:1.25}
+.fail-title{color:#5fa0ff}
+.ten-stage{position:relative;padding:0;overflow:hidden;background:#000}
+.ten-scene{display:block;width:100%;image-rendering:pixelated}
+.bubbles{position:absolute;left:0;right:0;top:6px;display:flex;justify-content:space-between;gap:6px;padding:0 6px;z-index:2}
+.sb{position:relative;flex:1;background:#fff;color:#1b1b2f;border:2px solid #1b1b2f;font-size:11px;line-height:1.35;padding:4px 6px;box-shadow:2px 2px 0 #1b1b2f;animation:pop .4s steps(3)}
+.sb:after{content:'';position:absolute;bottom:-8px;left:30%;border:4px solid transparent;border-top:4px solid #1b1b2f}
+.cine-names.static{bottom:24px}
+.shark-talk{display:flex;flex-direction:column;gap:3px;padding:6px;background:var(--line);min-height:120px}
+.shark-talk .sl{background:rgba(0,0,0,.8);color:#fff;font-size:12px;padding:3px 6px;border-left:3px solid #ffd23f;animation:pop .3s steps(3)}
+.shark-talk .sl.knock{color:#ffd23f;border-color:#fff}
+.shark-talk .sl.last{background:#2f6fd6;font-size:14px;border-color:#fff}

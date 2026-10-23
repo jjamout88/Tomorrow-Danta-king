@@ -247,6 +247,47 @@ const fillSci = (t, s) => { const nm = s[0], th = (s[1] || []).map((x) => shortT
   return esc(t).replace(/\{(n|a|c|t)\}/g, (_, k) => esc(v[k])); };
 const sciNews = (sc, s) => fillSci(SCI_TPL[sc[1] % SCI_TPL.length][0], s);
 
+
+/* ---------- ⚔️ 10일의 전사 ---------- */
+const TEN_DAYS = 10, TEN_GOAL = 2000000, TEN_KEY = 'dantaking_ten_run_v1';
+const josa = (w, a, b) => { // 마지막 글자 받침 있으면 a(은/을/이), 없으면 b(는/를/가). 숫자는 읽는 소리로 (7=칠 → 받침)
+  const ch = String(w).trim().slice(-1), c = ch.charCodeAt(0);
+  if (c >= 0xac00 && c <= 0xd7a3) return (c - 0xac00) % 28 ? a : b;
+  if (/[0-9]/.test(ch)) return '013678'.includes(ch) ? a : b;
+  if (/[a-z]/i.test(ch)) return 'lmnkpt'.includes(ch.toLowerCase()) ? a : b; // Tom→은, Lee→는 (대충 발음 기준)
+  return b; };
+const nk = (s) => (s || '개미').trim();
+const TEN_INTRO = [
+  '사채 100만 원 빌렸습니다. 열흘 안에 200만 원 만들면 인생 역전, 못 만들면… 원양어선 🚢',
+  '이자 100%, 기한 10일. 국장에 영혼을 맡겼다. 떨어져도 게임오버는 없지만 사채업자는 있다',
+  '열흘 뒤 200만 원. 못 갚으면 참치랑 친구 됩니다 🐟 오늘부터 단타의 신이 되어 보자'];
+const TEN_D = { // 남은 날 → 한 줄 (여러 개 중 랜덤)
+  10: ['D-10 아직 여유롭다. 커피 한 잔 ☕', 'D-10 사채업자: "천천히 하세요~ 고객님 ^^"'],
+  9: ['D-9 엄마한테는 적금 들었다고 했다', 'D-9 종토방 들어갔다가 멘탈 반 개 잃음'],
+  8: ['D-8 사채업자가 프로필 사진을 바꿨다 (참치)', 'D-8 아직 괜찮아… 아직은…'],
+  7: ['D-7 일주일 남았다. 일주일이면 따블 충분하지 (아마)', 'D-7 "고객님 잘 지내시죠?" 문자 옴'],
+  6: ['D-6 꿈에 상한가가 나왔다. 길몽인가?', 'D-6 편의점 삼각김밥으로 버티는 중 🍙'],
+  5: ['D-5 반 왔다. 사채업자가 안부 전화를 했다 ☎️', 'D-5 "원양어선 좌석 예약해 둘까요?"'],
+  4: ['D-4 손이 떨린다. 아니 이건 커피 때문이야', 'D-4 사채업자 카톡 프사가 배 사진이다 🚢'],
+  3: ['D-3 … 사채업자 문자 왔음 📱 "곧 뵙겠습니다"', 'D-3 이제 진짜 국장의 신이 필요하다 🙏'],
+  2: ['D-2 집 앞에 검은 차가 서 있는 것 같다…', 'D-2 "고객님~ 짐은 가볍게 싸세요~"'],
+  1: ['D-1 마지막 한 방. 상한가 아니면 참치다 🐟', 'D-1 사채업자: "내일 아침 9시에 뵐게요 ^^"'] };
+const TEN_REACT = {
+  lim: ['🚀 상한가!! 사채업자가 살짝 긴장했다', '🔥 상한가! 오늘만큼은 내가 워런 버핏', '🚀 이 맛에 국장 한다!!'],
+  up: ['📈 올랐다! 사채업자 문자 답장 안 해도 될 듯', '📈 수익 났다. 오늘 저녁은 삼각김밥 2개', '📈 좋아 좋아, 이 흐름 그대로!'],
+  flat: ['😐 보합. 시간만 갔다…', '😐 0.00%. 사채 이자는 안 쉬는데'],
+  down: ['📉 떨어졌다. 괜찮아, 아직 날이 남았어 (덜덜)', '📉 사채업자: "괜찮으세요 고객님? ^^"', '📉 손실… 종토방에 "세력 털기"라고 써 본다'],
+  crash: ['💀 폭락… 원양어선 승선권이 보이기 시작한다', '💀 계좌가 한강 수온을 체크했다', '💀 사채업자가 박수 치는 소리가 들린다'] };
+const SHARK_LINES = [
+  ['(쾅쾅쾅)', '고객님~ 열흘 지났는데요? ^^', '어머, 잔고가 많이 귀여우시네요~', '원양어선 배멀미 하시나요? 괜찮아요, 금방 익숙해져요', '다음 달부터 원양어선 탑니다… 🚢'],
+  ['(띵동 띵동)', '안녕하세요~ 약속의 날이 왔습니다 ^^', '국장이 원래 그래요. 저희도 다 알아요', '참치 잡으면서 차트 공부 하시면 돼요', '다음 달부터 원양어선 탑니다… 🐟'],
+  ['(똑똑… 똑똑똑)', '고객님, 계좌 한번 볼까요?', '…아 이건 좀 많이 파랗네요', '배 위에서도 와이파이는 됩니다! 리딩방은 안 돼요', '다음 달부터 원양어선 탑니다… ⚓']];
+const GOD_TITLE = ['국장의 신', '여의도의 전설', '단타의 신'];
+const LEE_LINES = ['{n}님, 우리 회사 사외이사 하실래요?', '{n}님 같은 인재를 찾고 있었습니다 👍', '{n}님, 다음 회동 때 치킨은 제가 사겠습니다 🍗', '{n}님 매매 기법, 반도체급 초정밀이네요'];
+const CHEY_LINES = ['{n}님, 이 정도면 행복 경영 아닙니까 😄', '{n}님, 저랑 같이 수소 사업 하시죠!', '역시 {n}님! 나라를 구하셨습니다 👍', '{n}님 덕분에 오늘 회의는 칭찬으로 시작합니다'];
+const fillN = (t, n) => esc(t).replace('{n}', esc(n));
+const tenLeft = () => TEN_DAYS - S.hist.length;
+
 /* ---------- 상태 ---------- */
 // 데이터 v6: day = [나스닥, 종목풀, 비밀(풀 결과·날짜), 보통 구성, 잭팟 구성, 쉬운 구성(오름 4·내림 2)]. 구성 = [풀 번호 6개, 뉴스, 찌라시, 비밀(리딩방 픽·헛소문 표시)]
 const LEAD_MAX = 3, LEAD_COSTS = [0.10, 0.15, 0.20], VSALT = 100003, JPV = 8, JP_P = 0.05, JP_FROM = 3, EASY0 = 10, EASY_TURNS = 3; // 잭팟: 4턴째부터 5%. 첫 3턴은 쉬운 구성
@@ -269,16 +310,21 @@ const idx = () => S.i;
 // 화면용 하루: [나스닥, 뉴스, 6종목, -, -, 찌라시]
 const day = () => { const d = DATA.days[S.i], v = variant(S.i); return [d[0], v[1], v[0].map((j) => d[1][j]), null, null, v[2], v[4] || 0]; };
 /* 새로고침해도 같은 턴/결과로 돌아와요 */
-function save() { try { if (S) localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { /* 저장 실패해도 게임은 계속 */ } }
-function clearSave() { localStorage.removeItem(SAVE_KEY); }
-function loadSave() { try { const x = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); return x && x.v === 6 && x.i < DATA.days.length ? x : null; } catch (e) { return null; } }
+const keyOf = (m) => (m === 'ten' ? TEN_KEY : SAVE_KEY); // 모드마다 따로 저장
+const isTen = () => !!S && S.mode === 'ten';
+function save() { try { if (S) localStorage.setItem(keyOf(S.mode), JSON.stringify(S)); } catch (e) { /* 저장 실패해도 게임은 계속 */ } }
+function clearSave(m) { localStorage.removeItem(keyOf(m === undefined ? (S && S.mode) : m)); }
+function loadSave(m) { try { const x = JSON.parse(localStorage.getItem(keyOf(m)) || 'null'); return x && x.v === 6 && x.i < DATA.days.length && (x.mode || 'combo') === m ? x : null; } catch (e) { return null; } }
 const themeText = (s) => [...new Set(s[1].map((t) => shortT(DATA.themes[t])))].map(esc).join(' · ');
 
 function hud() {
   $('#hud').classList.toggle('hidden', !S || S.over);
   if (!S) return;
-  $('#hud-turn').textContent = `🔥 ${S.combo}콤보`;
+  $('#hud-turn').textContent = isTen() ? `⚔️ D-${Math.max(0, tenLeft())}` : `🔥 ${S.combo}콤보`;
   $('#hud-cash').textContent = won(S.cash);
+  const bar = $('#hud-bar'); if (!bar) return;
+  bar.classList.toggle('hidden', !isTen());
+  if (isTen()) { const p = Math.max(0, Math.min(100, (S.cash / TEN_GOAL) * 100)); $('#hud-fill').style.width = p + '%'; $('#hud-fill').classList.toggle('done', S.cash >= TEN_GOAL); $('#hud-goal').textContent = `목표 200만 · ${Math.floor(p)}%`; }
 }
 let RID = 0; // 화면이 바뀌면 늦게 도착한 연출은 버려요
 function render(html) { RID++; closeModal(); $('#fx').innerHTML = ''; $('#app').classList.remove('shake'); $('#screen').innerHTML = html; window.scrollTo(0, 0); hud(); }
@@ -287,13 +333,18 @@ function titleScreen() {
   S = null;
   render(`
   <h1>내꿈은 단타왕</h1>
-  <p class="sub">무한 콤보 모드 · 실제 한국 주식 데이터</p>
+  <p class="sub">실제 한국 주식 데이터 · 모드를 골라요</p>
   <canvas id="ant" width="16" height="16" class="bounce"></canvas>
   <div class="box bests">
     <div class="kv"><span>내 최고 콤보</span><span class="gold">${bestOf('combo')}콤보</span></div>
     <div class="kv"><span>내 최고 최종 금액</span><span class="gold">${bestOf('final') ? won(bestOf('final')) : '없음'}</span></div>
   </div>
-  <button class="btn" id="start" ${DATA ? '' : 'disabled'}>${DATA ? '게임 시작' : '데이터 불러오는 중...'}</button>
+  <div class="modes">
+    <div class="mode-card"><div class="mode-name">🔥 무한 콤보</div><div class="dim mode-desc">떨어지면 즉사. 몇 연승까지 갈 수 있나?</div>
+      <button class="btn" id="start" ${DATA ? '' : 'disabled'}>${DATA ? '무한 콤보 시작' : '데이터 불러오는 중...'}</button></div>
+    <div class="mode-card ten"><div class="mode-name">⚔️ 10일의 전사</div><div class="dim mode-desc">사채 100만 원, 열흘 안에 200만 원 만들기. 못 하면 원양어선 🚢</div>
+      <button class="btn" id="start-ten" ${DATA ? '' : 'disabled'}>${DATA ? '10일의 전사 시작' : '데이터 불러오는 중...'}</button></div>
+  </div>
   <button class="btn ghost" id="rank">🏆 랭킹 보기</button>
   <div class="box rules">
     <h2>규칙</h2>
@@ -304,25 +355,49 @@ function titleScreen() {
       <li>오늘의 뉴스엔 헛소문과 찌라시가 섞여 있어요. 가끔 뜨는 <b>🧪 국장은 과학</b> 뉴스는… 믿거나 말거나</li>
       <li>리딩방은 돈을 내고 들어가요 (현금의 10% → 15% → 20%, 한 판에 최대 3번). 꽤 잘 맞히지만 쪽박 찰 수도 있어요</li>
       <li>최고 콤보와 최종 금액으로 랭킹에 도전해요. 날짜는 끝나면 공개!</li>
+      <li><b>⚔️ 10일의 전사</b>: 딱 10턴, 떨어져도 게임오버 없이 돈만 줄어요. 10일 뒤 <b class="gold">200만 원 이상</b>이면 성공!</li>
     </ul>
   </div>`);
   drawAnt('normal');
-  $('#start').onclick = startGame;
+  $('#start').onclick = () => nickScreen('combo');
+  $('#start-ten').onclick = () => nickScreen('ten');
   $('#rank').onclick = () => rankScreen('combo');
-  const sv = DATA && loadSave();
-  if (sv && (!sv.over || !sv.submitted)) { $('#start').textContent = sv.over ? '지난 판 결과 보기 ▶' : '이어하기 ▶'; $('#start').insertAdjacentHTML('afterend', '<button class="btn ghost" id="newrun">새 게임</button>'); $('#start').onclick = () => resume(sv); $('#newrun').onclick = () => { clearSave(); startGame(); }; }
+  [['combo', '#start', 'newrun'], ['ten', '#start-ten', 'newrun-ten']].forEach(([m, sel, nid]) => {
+    const sv = DATA && loadSave(m);
+    if (sv && (!sv.over || !sv.submitted)) { $(sel).textContent = sv.over ? '지난 판 결과 보기 ▶' : '이어하기 ▶'; $(sel).insertAdjacentHTML('afterend', `<button class="btn ghost" id="${nid}">새 게임</button>`); $(sel).onclick = () => resume(sv); $('#' + nid).onclick = () => { clearSave(m); nickScreen(m); }; }
+  });
 }
 
 function resume(sv) {
-  S = sv;
-  if (S.over && S.phase === 'end') return endScreen();
+  S = sv; S.mode = S.mode || 'combo';
+  if (S.over && S.phase === 'end') return S.mode === 'ten' ? tenEndScreen() : endScreen();
   if (S.phase === 'result' && S.R) return resultScreen(S.R);
   if (S.pick !== null && S.pick !== undefined) return settle(S.pick);
   turnScreen(true);
 }
-function startGame() {
-  const n = DATA.days.length;
-  S = { v: 6, seed: (Math.random() * 2 ** 31) | 0, phase: 'turn', pick: null, R: null, submitted: false, i: Math.floor(Math.random() * Math.max(1, n - 30)), combo: 0, cash: START_CASH, peak: START_CASH, hist: [], over: false, clear: false,
+/* 닉네임 먼저: 1~12자, 기억해서 다음에 채워 둬요 */
+function nickScreen(mode) {
+  S = null;
+  render(`
+  <h1>${mode === 'ten' ? '⚔️ 10일의 전사' : '🔥 무한 콤보'}</h1>
+  <canvas id="ant" width="16" height="16" class="bounce"></canvas>
+  ${mode === 'ten' ? `<div class="box ten-intro">${esc(pick(TEN_INTRO))}</div>` : ''}
+  <div class="box"><h2 style="margin-top:0">닉네임</h2>
+    <p class="dim" style="margin:0 0 8px">엔딩이랑 랭킹에 이 이름이 나와요</p>
+    <input id="nick-in" class="nick" maxlength="12" placeholder="닉네임 (1~12자)" autocomplete="off" style="width:100%">
+    <div class="down" id="nick-msg" style="min-height:18px;font-size:12px"></div>
+    <button class="btn" id="nick-go">${mode === 'ten' ? '사채 받고 시작 💸' : '시작 🔥'}</button>
+    <button class="btn ghost" id="nick-back">뒤로</button></div>`);
+  drawAnt('normal');
+  const inp = $('#nick-in'); inp.value = localStorage.getItem(LS.nick) || '';
+  const go = () => { const n = inp.value.trim(); if (n.length < 1 || n.length > 12) { $('#nick-msg').textContent = '닉네임은 1~12자로 써 주세요'; return; } localStorage.setItem(LS.nick, n); startGame(mode, n); };
+  $('#nick-go').onclick = go; inp.onkeydown = (e) => { if (e.key === 'Enter') go(); }; inp.oninput = () => { $('#nick-msg').textContent = ''; };
+  $('#nick-back').onclick = titleScreen;
+}
+function startGame(mode = 'combo', nick) {
+  const n = DATA.days.length, ten = mode === 'ten';
+  nick = nick || localStorage.getItem(LS.nick) || '';
+  S = { v: 6, mode, nick, seed: (Math.random() * 2 ** 31) | 0, phase: 'turn', pick: null, R: null, submitted: false, i: Math.floor(Math.random() * Math.max(1, n - (ten ? TEN_DAYS : 30))), combo: 0, cash: START_CASH, peak: START_CASH, hist: [], over: false, clear: false,
         jp: false, easy: false, jpWin: 0, milestones: [], lead: 0, leadSpend: 0, leadHit: 0, ups: 0, lead_on: false, rumorFollow: 0, rumorHit: 0 };
   turnScreen();
 }
@@ -345,9 +420,11 @@ function turnScreen(resumed) {
       <div class="home">🏠 ${HOMES[tier].name}</div>
       <div class="dim st-desc">${HOMES[tier].desc}</div>
       <div class="st-mood">최고 금액 ${won(S.peak)}</div>
-      ${S.combo >= 3 ? `<span class="combo">🔥${S.combo}연승</span>` : `<span class="dim" style="font-size:12px">${S.combo}콤보 · 3연승부터 불붙어요</span>`}
+      ${isTen() ? `<span class="combo ten-d">⚔️ D-${tenLeft()} · ${S.hist.length + 1}일째</span>` : S.combo >= 3 ? `<span class="combo">🔥${S.combo}연승</span>` : `<span class="dim" style="font-size:12px">${S.combo}콤보 · 3연승부터 불붙어요</span>`}
     </div>
   </div>
+  ${isTen() ? (() => { const L = TEN_D[tenLeft()] || TEN_D[1], need = TEN_GOAL - S.cash; return `<div class="box ten-line"><div>${esc(L[(S.seed >>> 0) % L.length])}</div>
+    <div class="dim" style="font-size:12px;margin-top:4px">${need > 0 ? `목표까지 ${won(need)} 남음 (남은 ${tenLeft()}일 동안 +${(((TEN_GOAL / S.cash) ** (1 / tenLeft()) - 1) * 100).toFixed(1)}%씩 필요)` : '🎉 이미 200만 원 넘었다! 지키기만 하면 된다'}</div></div>`; })() : ''}
   <div class="box nasdaq"><span>어젯밤 나스닥</span><span class="${cls(d[0])}">${pct(d[0])}</span></div>
   <div class="box news"><h2 style="margin-top:0">오늘의 뉴스</h2><ul>${d[1].map((n) => `<li>${esc(n)}</li>`).join('')}
     ${rumor ? `<li class="rumor" data-i="${rumor[0]}">${esc(RUMOR_TPL[rumor[1] % RUMOR_TPL.length]).replace('{n}', `<b>${esc(d[2][rumor[0]][0])}</b>`)}</li>` : ''}
@@ -416,21 +493,23 @@ function detail(i) {
 
 function settle(k) {
   const d = day(), sec = reveal(idx()), ret = sec.r[k], s = d[2][k];
-  const pre = S.cash, survived = ret >= 0, flat = ret === 0; // 보합(0%)은 살아남지만 콤보는 그대로
+  const ten = isTen();
+  const pre = S.cash, survived = ten || ret >= 0, flat = ret === 0; // 보합(0%)은 살아남지만 콤보는 그대로. 10일의 전사는 안 죽어요
   const after = pre * (1 + ret / 100);
   const rumor = d[5], hint = S.lead_on ? revealHint(idx()) : null;
   if (ret > 0 && S.jp) S.jpWin++;
-  if (flat) { S.flats = (S.flats || 0) + 1; }
+  if (ten) { S.cash = after; S.peak = Math.max(S.peak, after); if (ret > 0) S.combo++; if (ret >= 29) S.ups++; if (flat) S.flats = (S.flats || 0) + 1; }
+  else if (flat) { S.flats = (S.flats || 0) + 1; }
   else if (survived) { S.combo++; S.cash = after; S.peak = Math.max(S.peak, after); if (ret >= 29) S.ups++; }
   else { S.cash = after; S.over = true; }
-  const milestone = ret > 0 && [5, 10, 20].includes(S.combo) ? S.combo : 0;
-  const isLast = survived && S.i + 1 >= DATA.days.length;
-  if (isLast) { S.clear = true; S.over = true; }
+  const milestone = !ten && ret > 0 && [5, 10, 20].includes(S.combo) ? S.combo : 0;
+  const isLast = ten ? (S.hist.length + 1 >= TEN_DAYS || S.i + 1 >= DATA.days.length) : survived && S.i + 1 >= DATA.days.length;
+  if (isLast) { S.clear = ten ? S.cash >= TEN_GOAL : true; S.over = true; }
   if (hint && sec.r[hint[0]] > 0) S.leadHit++;
   if (rumor && k === rumor[0]) { S.rumorFollow++; if (ret > 0) S.rumorHit++; }
   const scn = d[6]; if (scn && k === scn[0]) { S.sciFollow = (S.sciFollow || 0) + 1; if (ret > 0) S.sciHit = (S.sciHit || 0) + 1; }
   S.hist.push({ sec, name: s[0], ret, nas: d[0], cash: S.cash });
-  const R = { k, s, sec, ret, pre, after, survived, flat, rumor, sci: scn || 0, hint, jp: S.jp, milestone, leadFail: !!(hint && hint[0] === k && !survived), isLast };
+  const R = { k, s, sec, ret, pre, after, survived, flat, rumor, sci: scn || 0, hint, jp: S.jp, milestone, leadFail: !!(hint && hint[0] === k && ret < 0), isLast, ten, react: ten ? pick(TEN_REACT[ret >= 29 ? 'lim' : ret > 0 ? 'up' : ret === 0 ? 'flat' : ret <= -10 ? 'crash' : 'down']) : '' };
   S.phase = 'result'; S.R = R; S.pick = null; save();
   resultScreen(R);
 }
@@ -448,10 +527,11 @@ function resultScreen(R) {
   const rows = d[2].map((s, i) => ({ s, i, r: R.sec.r[i], l: L[i] })).sort((a, b) => b.r - a.r);
   const mi = rows.findIndex((x) => x.i === R.k); rows.unshift(rows.splice(mi, 1)[0]);
   const tag = (l) => (l ? `<span class="tag ${l === '상한가' || l === '1등' ? 'up' : 'down'}">${l}</span>` : '');
-  const mood = !R.survived ? 'broke' : R.flat ? 'meh' : 'happy';
+  const mood = !R.survived ? 'broke' : R.flat ? 'meh' : R.ret < 0 ? 'sad' : 'happy';
+  const dayNo = S.hist.length;
   const pnl = R.after - R.pre;
   render(`
-  ${R.flat ? `<div class="flat-title">😐 보합!<small>${S.combo}콤보 유지</small></div>` : R.survived ? `<div class="combo-punch" id="punch">${S.combo}<small>COMBO</small></div>` : `<div class="gameover-title">게임오버</div>`}
+  ${R.ten ? `<div class="ten-day ${cls(R.ret)}" id="punch">DAY ${dayNo}<small>/ ${TEN_DAYS}</small></div><div class="box ten-react ${cls(R.ret)}">${esc(R.react)}</div>` : R.flat ? `<div class="flat-title">😐 보합!<small>${S.combo}콤보 유지</small></div>` : R.survived ? `<div class="combo-punch" id="punch">${S.combo}<small>COMBO</small></div>` : `<div class="gameover-title">게임오버</div>`}
   <canvas id="ant" width="16" height="16" class="${R.survived && !R.flat ? 'bounce' : ''}"></canvas>
   ${R.jp ? `<div class="box jp-banner">${R.ret > 0 ? '💰 잭팟!! 6개 중 오르는 건 딱 이것 하나였어요' : '💰 사실 잭팟 턴이었어요. 6개 중 하나만 상한가, 나머지는 전부 하락'}</div>` : ''}
   <div class="box">
@@ -462,7 +542,8 @@ function resultScreen(R) {
     ${!R.survived ? `<div class="big down">떨어졌다…</div>` : ''}
     ${R.flat ? `<div class="big flat">😐 본전치기 — 콤보 유지</div><div class="center dim">한 푼도 안 벌고 하루를 버렸다. 그래도 살았다!</div>` : ''}
     ${R.leadFail ? `<div class="big down">🧽 설거지 당했다! 쪽박</div>` : ''}
-    ${R.isLast ? `<div class="big gold">🏁 완주! 시장 휴장</div><div class="center dim">더 이상 남은 장이 없어요</div>` : ''}
+    ${R.ten && !R.isLast ? `<div class="kv dim"><span>목표 200만까지</span><span>${S.cash >= TEN_GOAL ? '달성! 🎉' : won(TEN_GOAL - S.cash)} · D-${tenLeft()}</span></div>` : ''}
+    ${R.ten && R.isLast ? `<div class="big gold">🏁 10일 끝! 운명의 시간…</div>` : R.isLast ? `<div class="big gold">🏁 완주! 시장 휴장</div><div class="center dim">더 이상 남은 장이 없어요</div>` : ''}
   </div>
   ${R.milestone ? `<div class="box milestone">🔥 ${R.milestone}콤보 달성! ${MILESTONE_TXT[R.milestone]}</div>` : ''}
   ${R.hint ? (() => { const r = R.sec.r[R.hint[0]], hit = r > 0, fl = r === 0; return `<div class="box chat">
@@ -479,13 +560,13 @@ function resultScreen(R) {
   <div class="box res-list"><h2 style="margin-top:0">6종목 결과</h2>
     ${rows.map((x) => `<div class="r ${x.i === R.k ? 'me' : ''}"><span>${x.i === R.k ? '내 픽 · ' : ''}${esc(x.s[0])}${tag(x.l)}</span><span class="${cls(x.r)}">${pct(x.r)}</span></div>`).join('')}
   </div>
-  <button class="btn" id="next">${R.isLast ? '최종 결과 보기 🏁' : R.flat ? '다음 날로 😐' : R.survived ? '다음 날로 🔥' : '결과 보기'}</button>`);
+  <button class="btn" id="next">${R.ten ? (R.isLast ? '사채업자 만나러 가기 🚪' : '다음 날로 ⚔️') : R.isLast ? '최종 결과 보기 🏁' : R.flat ? '다음 날로 😐' : R.survived ? '다음 날로 🔥' : '결과 보기'}</button>`);
   drawAnt(mood);
   const rid = RID;
   const fxAfter = () => {
     if (rid !== RID) return;
     if (R.flat) { flatFx(); return; }
-    if (!R.survived) {
+    if (!R.survived || (R.ten && R.ret < 0)) {
       if (R.leadFail) { cinema('jjokbak'); freeze(''); }                    // 리딩방 따라갔다가 설거지
       else if (R.ret <= -10) { cinema(pick(DOWN_CINE)); if (R.ret <= -29) freeze(''); else if (!RM()) shake(); }
       else freeze('꽁꽁 얼었다…');
@@ -498,7 +579,7 @@ function resultScreen(R) {
   slot($('#slot-pct'), R.ret, pct, 800);
   slot($('#slot-pnl'), pnl, (v) => (v >= 0 ? '+' : '') + won(v), 800, fxAfter);
   $('#next').onclick = () => {
-    if (S.over) return endScreen();
+    if (S.over) return S.mode === 'ten' ? tenEndScreen() : endScreen();
     S.i++;
     turnScreen();
   };
@@ -519,7 +600,7 @@ const MILESTONE_TXT = { 5: '슈퍼개미 등극!', 10: '단타 고수 인정!', 
 function cinema(kind, opt = {}) {
   const C = CINE[kind], fx = $('#fx');
   const L = document.createElement('div'); L.className = 'cine cine-' + kind; L.dataset.kind = kind;
-  L.innerHTML = `<canvas width="${CW}" height="${CH}"></canvas><div class="cine-text ${C.cls}">${esc(opt.text || C.text)}</div><div class="cine-skip">탭해서 넘기기</div>`;
+  L.innerHTML = `<canvas width="${CW}" height="${CH}"></canvas><div class="cine-text ${C.cls}">${esc(opt.text || C.text)}</div>${C.names ? `<div class="cine-names">${C.names.map((n) => `<span>${esc(n)}</span>`).join('')}</div>` : ''}<div class="cine-skip">탭해서 넘기기</div>`;
   fx.appendChild(L);
   const g = L.querySelector('canvas').getContext('2d'), txt = L.querySelector('.cine-text');
   const ms = RM() ? 1600 : C.ms; let raf = 0, done = false;
@@ -539,6 +620,7 @@ function cinema(kind, opt = {}) {
 const P = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), w, h); };
 const stars = (g, n, seed) => { for (let i = 0; i < n; i++) P(g, '#fff', (i * 37 + seed) % CW, (i * 53 + seed * 3) % 90); };
 const SCENES = {
+
   homerun(g, t) {
     P(g, '#5fb8ff', 0, 0, CW, CH); P(g, '#ffffff', 10, 20, 14, 3); P(g, '#ffffff', 55, 38, 18, 3);
     P(g, '#2f8f3a', 0, 140, CW, 55); P(g, '#c8a060', 0, 150, CW, 10);
@@ -632,6 +714,130 @@ const SCENES = {
     g.globalAlpha = 1;
     for (let i = 0; i < 6; i++) P(g, '#9cc8ff', x - 10 + ((i * 7) % 20), y + 20 + ((i * 9 + Math.floor(now / 80)) % 30));
   } };
+
+
+/* ---------- 회장님 캐리커처 (고해상도 도트, 존중하는 톤 · 회사 프로젝트 허락받음) ---------- */
+const ell = (g, cx, cy, rx, ry, col, clipY) => { for (let y = -ry; y <= ry; y++) for (let x = -rx; x <= rx; x++) if ((x * x) / (rx * rx) + (y * y) / (ry * ry) <= 1 && (clipY === undefined || cy + y <= clipY)) P(g, col, cx + x, cy + y); };
+function thumbUp(g, x, y, sleeve) { // 주먹 + 위로 선 엄지 (따봉)
+  const SK = '#f3cfa8', SD = '#d9a57d', OL = '#5a3a2a';
+  P(g, OL, x - 1, y + 7, 16, 15); P(g, SK, x, y + 8, 14, 13);                 // 주먹
+  for (const yy of [11, 14, 17]) P(g, SD, x + 5, y + yy, 9, 1);               // 접은 손가락 마디
+  P(g, SD, x + 13, y + 9, 1, 11);
+  P(g, OL, x - 1, y - 2, 7, 11); P(g, SK, x, y - 1, 5, 10); P(g, '#fde6d2', x + 1, y, 3, 3); // 엄지 + 손톱
+  P(g, SD, x + 4, y + 2, 1, 6);
+  P(g, '#f4f1de', x + 1, y + 21, 13, 3); P(g, sleeve, x, y + 24, 15, 10);      // 셔츠 소매 + 정장 소매
+}
+function bust(g, ox, oy, o, now) {
+  const SK = '#f3cfa8', SD = '#e0b48c', OL = '#5a3a2a', cx = ox + 40, fy = oy + 46;
+  // 몸통 (정장)
+  ell(g, cx, oy + 118, 40, 30, o.suit); P(g, o.suit2, cx - 14, oy + 90, 2, 30); P(g, o.suit2, cx + 12, oy + 90, 2, 30);
+  for (let y = 0; y < 22; y++) { const w = Math.max(1, 11 - Math.floor(y / 2)); P(g, '#f4f1de', cx - w, oy + 84 + y, w * 2, 1); }
+  P(g, o.tie, cx - 2, oy + 86, 5, 4); for (let y = 0; y < 18; y++) P(g, o.tie, cx - 2 - (y > 4 && y < 14 ? 1 : 0), oy + 90 + y, 5 + (y > 4 && y < 14 ? 2 : 0), 1);
+  P(g, '#c8a040', cx - 22, oy + 100, 3, 2);                                     // 배지
+  P(g, SD, cx - 8, oy + 70, 16, 16); P(g, SK, cx - 7, oy + 70, 14, 13);          // 목
+  // 귀
+  ell(g, cx - (o.rx + 1), fy + 4, 4, 7, OL); ell(g, cx - (o.rx + 1), fy + 4, 3, 6, SK);
+  ell(g, cx + (o.rx + 1), fy + 4, 4, 7, OL); ell(g, cx + (o.rx + 1), fy + 4, 3, 6, SK);
+  // 얼굴
+  ell(g, cx, fy, o.rx + 1, o.ry + 1, OL); ell(g, cx, fy, o.rx, o.ry, SK);
+  if (o.jaw) { P(g, OL, cx - 14, fy + o.ry - 6, 28, 6); P(g, SK, cx - 13, fy + o.ry - 7, 26, 6); }
+  ell(g, cx, fy + o.ry - 4, 12, 3, SD);
+  o.hair(g, cx, fy);
+  // 눈썹
+  P(g, o.brow, cx - 15, fy - 9, 10, o.browW); P(g, o.brow, cx + 5, fy - 9, 10, o.browW); P(g, o.brow, cx - 16, fy - 8, 1, 1); P(g, o.brow, cx + 15, fy - 8, 1, 1);
+  // 웃는 눈 (반달)
+  for (const ex of [cx - 10, cx + 10]) { P(g, '#2a2020', ex - 4, fy - 2, 1, 1); P(g, '#2a2020', ex - 3, fy - 3, 2, 1); P(g, '#2a2020', ex - 1, fy - 4, 3, 1); P(g, '#2a2020', ex + 2, fy - 3, 2, 1); P(g, '#2a2020', ex + 4, fy - 2, 1, 1); }
+  o.glasses(g, cx, fy);
+  // 코
+  P(g, SD, cx - 1, fy + 1, 2, 7); P(g, SD, cx - 3, fy + 8, 2, 1); P(g, SD, cx + 2, fy + 8, 2, 1);
+  // 볼 터치
+  ell(g, cx - 15, fy + 9, 3, 2, '#f2b0a0'); ell(g, cx + 15, fy + 9, 3, 2, '#f2b0a0');
+  o.mouth(g, cx, fy);
+  // 따봉 팔 (살짝 위아래로)
+  const b = Math.floor(now / 260) % 2;
+  P(g, o.suit, ox + 70, oy + 88 - b, 12, 26); thumbUp(g, ox + 68, oy + 60 - b, o.suit);
+}
+const CHAIRMEN = {
+  lee: { name: '이재용 회장', rx: 23, ry: 27, suit: '#1f2540', suit2: '#2c3358', tie: '#2a4a9a', brow: '#2a2020', browW: 2,
+    hair(g, cx, fy) { // 단정한 검은 머리, 2:8 가르마
+      const H = '#17171d', HL = '#34343f';
+      ell(g, cx, fy - 15, 25, 16, H, fy - 12);
+      for (let x = -25; x <= 25; x++) { const bot = x < -9 ? fy - 13 : fy - 15 + Math.round((x + 9) * 0.18); P(g, H, cx + x, fy - 18, 1, Math.max(0, bot - (fy - 18))); }
+      P(g, '#b89478', cx - 10, fy - 27, 1, 7);                                // 가르마
+      for (let i = 0; i < 6; i++) P(g, HL, cx - 6 + i * 5, fy - 27 + (i % 2), 4, 1);
+      P(g, H, cx - 25, fy - 14, 3, 14); P(g, H, cx + 22, fy - 14, 3, 14);      // 구레나룻
+      P(g, '#8a8a94', cx - 25, fy - 6, 2, 3); P(g, '#8a8a94', cx + 23, fy - 6, 2, 3); // 살짝 흰머리
+    },
+    glasses(g, cx, fy) { // 무테(림리스) 안경: 얇은 렌즈 윤곽 + 반짝
+      const L = '#c9d3de';
+      for (const ex of [cx - 10, cx + 10]) { P(g, L, ex - 7, fy + 3, 14, 1); P(g, L, ex - 8, fy - 6, 1, 9); P(g, L, ex + 7, fy - 6, 1, 9); P(g, '#ffffff', ex + 3, fy - 5, 2, 1); P(g, '#ffffff', ex + 4, fy - 4, 1, 1); }
+      P(g, L, cx - 3, fy - 4, 6, 1); P(g, L, cx - 25, fy - 5, 7, 1); P(g, L, cx + 18, fy - 5, 7, 1);
+    },
+    mouth(g, cx, fy) { // 부드러운 미소
+      const M = '#a8584a';
+      P(g, M, cx - 7, fy + 14, 14, 1); P(g, M, cx - 9, fy + 13, 2, 1); P(g, M, cx + 7, fy + 13, 2, 1); P(g, '#c97a6a', cx - 5, fy + 15, 10, 1);
+    } },
+  chey: { name: '최태원 회장', rx: 21, ry: 31, jaw: true, suit: '#2a2a30', suit2: '#3c3c46', tie: '#c8102e', brow: '#3a3438', browW: 3,
+    hair(g, cx, fy) { // 뒤로 넘긴 은발, 넓은 이마
+      const H = '#cfcfd6', HD = '#9c9ca8', HL = '#f2f2f6';
+      ell(g, cx, fy - 22, 24, 16, H, fy - 18);
+      for (let i = 0; i < 9; i++) { const x = cx - 20 + i * 5; for (let k = 0; k < 9; k++) P(g, i % 2 ? HD : HL, x + Math.floor(k / 3), fy - 36 + k, 1, 1); } // 뒤로 넘긴 결
+      P(g, H, cx - 23, fy - 22, 4, 18); P(g, H, cx + 19, fy - 22, 4, 18); P(g, HD, cx - 22, fy - 12, 2, 8); P(g, HD, cx + 20, fy - 12, 2, 8);
+      P(g, '#e6c09a', cx - 12, fy - 19, 24, 1);                                // 이마 라인
+    },
+    glasses(g, cx, fy) { // 굵은 검은 사각 뿔테
+      const F = '#151518';
+      for (const ex of [cx - 10, cx + 10]) { P(g, F, ex - 8, fy - 7, 16, 2); P(g, F, ex - 8, fy + 3, 16, 2); P(g, F, ex - 8, fy - 7, 2, 12); P(g, F, ex + 6, fy - 7, 2, 12);
+        P(g, 'rgba(210,230,250,0.35)', ex - 6, fy - 5, 12, 8); P(g, '#ffffff', ex + 2, fy - 5, 3, 1); P(g, '#ffffff', ex + 3, fy - 4, 1, 2); }
+      P(g, F, cx - 2, fy - 4, 4, 2); P(g, F, cx - 23, fy - 5, 5, 2); P(g, F, cx + 18, fy - 5, 5, 2);
+      for (const ex of [cx - 10, cx + 10]) { P(g, '#2a2020', ex - 3, fy - 1, 6, 1); P(g, '#2a2020', ex - 2, fy - 2, 4, 1); } // 렌즈 속 웃는 눈 (다시 그림)
+    },
+    mouth(g, cx, fy) { // 활짝 웃는 입 (치아 보임) + 팔자 주름
+      for (let y = 0; y < 7; y++) { const w = 11 - Math.floor((y * y) / 4); P(g, '#5a1e1e', cx - w, fy + 13 + y, w * 2, 1); }
+      P(g, '#ffffff', cx - 9, fy + 13, 18, 2); P(g, '#d04a4a', cx - 4, fy + 17, 8, 2);
+      P(g, '#c98f68', cx - 15, fy + 9, 1, 7); P(g, '#c98f68', cx + 14, fy + 9, 1, 7);
+    } } };
+function drawChairmen(g, W, H, now, confetti) {
+  P(g, '#2a1840', 0, 0, W, H);
+  for (let i = 0; i < 7; i++) P(g, 'rgba(255,240,180,0.07)', 6 + i * 26, 0, 12, H);
+  P(g, '#c8102e', 0, H - 18, W, 18); P(g, '#ffd23f', 0, H - 18, W, 2);
+  bust(g, 2, H - 150, CHAIRMEN.lee, now); bust(g, 92, H - 150, CHAIRMEN.chey, now + 130);
+  if (confetti) for (let i = 0; i < 40; i++) P(g, ['#ffd23f', '#ff4d4d', '#ffffff', '#5fb8ff'][i % 4], (i * 37 + Math.floor(now / 50) * (1 + i % 3)) % W, (i * 53 + Math.floor(now / 35) * 3) % (H - 30), 2, 2);
+}
+/* ---------- 사채업자 컷신 (코믹, 폭력 없음) ---------- */
+function shark(g, x, y, step) {
+  P(g, '#111', x, y, 10, 10); P(g, '#f3cfa8', x + 1, y + 3, 8, 7); P(g, '#111', x, y, 10, 3);               // 머리 (올백)
+  P(g, '#000', x + 1, y + 5, 3, 2); P(g, '#000', x + 6, y + 5, 3, 2); P(g, '#000', x + 4, y + 5, 2, 1); P(g, '#5fb8ff', x + 2, y + 5, 1, 1); // 선글라스
+  P(g, '#8a4a3a', x + 3, y + 8, 4, 1);
+  P(g, '#15151a', x - 1, y + 10, 12, 14); P(g, '#f4f1de', x + 4, y + 10, 2, 5); P(g, '#000', x + 4, y + 12, 2, 6); // 정장
+  P(g, '#15151a', x + 1, y + 24, 3, 8 + (step ? 1 : 0)); P(g, '#15151a', x + 6, y + 24, 3, 9 - (step ? 1 : 0)); P(g, '#000', x, y + 32, 4, 2); P(g, '#000', x + 6, y + 32, 4, 2);
+}
+function sharkScene(g, W, H, t, now) {
+  const step = Math.floor(now / 200) % 2;
+  if (t < 0.78) {
+    P(g, '#4a4a52', 0, 0, W, H); P(g, '#3a3a42', 0, H - 22, W, 22); P(g, '#8aa0b8', 10, 14, 24, 14); for (let x = 12; x < 34; x += 4) P(g, '#2a2a30', x, 14, 1, 14); // 반지하 방
+    const open = t > 0.3, dx = t < 0.3 ? ((Math.floor(now / 70) % 2) ? 1 : -1) : 0;
+    P(g, '#2a1a12', W - 26, H - 60, 22, 40);                                   // 문틀
+    if (!open) { P(g, '#7a5a3a', W - 24 + dx, H - 58, 18, 38); P(g, '#ffd23f', W - 22 + dx, H - 40, 2, 2); }
+    else P(g, '#0b0b1a', W - 24, H - 58, 18, 38);
+    let ax = 40, ay = H - 38;
+    if (t >= 0.3) {
+      const k = Math.min(1, (t - 0.3) / 0.2), m = t > 0.55 ? Math.min(1, (t - 0.55) / 0.23) : 0;
+      const sx = W - 22 - k * 34 - m * 90;
+      shark(g, sx, H - 56, step); shark(g, sx + 18, H - 56, 1 - step);
+      if (t > 0.5) { ax = sx + 6; ay = H - 50 - (step ? 1 : 0); }                 // 양쪽에서 번쩍 들고 감
+    }
+    antOn(g, ax, ay, t > 0.5 ? 'sad' : 'meh');
+    if (t > 0.5) for (let i = 0; i < 4; i++) P(g, '#4d8dff', ax + 4 + i * 3, ay + 18 + ((now / 60 + i * 5) % 8), 1, 2); // 눈물
+  } else { // 원양어선
+    P(g, '#ff9a6a', 0, 0, W, H * 0.55); P(g, '#2f6fd6', 0, H * 0.55, W, H); P(g, '#ffd23f', W - 30, 16, 10, 10);
+    const bob = Math.sin(now / 300) * 2, bx = 24;
+    P(g, '#8a2a2a', bx, H * 0.55 - 8 + bob, 52, 10); P(g, '#f4f1de', bx + 8, H * 0.55 - 22 + bob, 18, 14); P(g, '#555', bx + 32, H * 0.55 - 34 + bob, 2, 26);
+    P(g, '#ffd23f', bx + 10, H * 0.55 - 18 + bob, 4, 4); P(g, '#ffd23f', bx + 18, H * 0.55 - 18 + bob, 4, 4);
+    antOn(g, bx + 34, H * 0.55 - 24 + bob, 'meh');
+    for (let x = 0; x < W; x += 8) P(g, '#5fa0ff', (x + now / 40) % W, H * 0.55 + 6 + ((x / 8) % 3) * 5, 4, 1);
+  }
+}
 
 /* 잭팟 연출: 금빛 화면 + 코인 비 + 불꽃 */
 function jackpot() {
@@ -740,15 +946,83 @@ function endScreen() {
   </div>
   <button class="btn" id="again2">🔁 한 판 더</button>
   <button class="btn ghost" id="home">처음으로</button>`);
-  const restart = () => { clearSave(); startGame(); };
+  const restart = () => { const m = S.mode, n = S.nick; clearSave(m); startGame(m, n); };
   $('#again').onclick = restart; $('#again2').onclick = restart; $('#home').onclick = () => { clearSave(); titleScreen(); };
-  rankForm({ max_combo: S.combo, final_cash: Math.min(1e11, fin), peak_cash: Math.max(0, Math.min(1e11, Math.round(S.peak))), reading_uses: S.lead, title: T.main[0].slice(0, 30) });
+  rankForm({ max_combo: S.combo, final_cash: Math.min(1e11, fin), peak_cash: Math.max(0, Math.min(1e11, Math.round(S.peak))), reading_uses: S.lead, title: T.main[0].slice(0, 30), mode: 'combo' });
+}
+
+
+/* ---------- ⚔️ 10일의 전사 엔딩 ---------- */
+function tenHeadlines(n) {
+  return [[`${n}${josa(n, '은', '는')} 신이야! 🙏`, '국장의 신'], ['주식의 신!', `${n}님, 여의도가 술렁입니다`],
+    [`${n}${josa(n, '을', '를')} 막을 수 없습니다.`, '국장의 신'], [`${n}${josa(n, '이', '가')} 미쳐 날뛰고 있습니다.`, '여의도의 전설']];
+}
+function tenEndScreen() {
+  S.over = true;
+  const win = S.cash >= TEN_GOAL, n = nk(S.nick), fin = Math.max(0, Math.round(S.cash)), h = S.hist;
+  if (!S.tenPick) S.tenPick = { h: Math.floor(Math.random() * 4), lee: Math.floor(Math.random() * LEE_LINES.length), chey: Math.floor(Math.random() * CHEY_LINES.length), sh: Math.floor(Math.random() * SHARK_LINES.length) }; // 새로고침해도 같은 대사
+  S.phase = 'end'; save();
+  const tp = S.tenPick, HL = tenHeadlines(n)[tp.h], story = periodStory(h[0].sec, h[h.length - 1].sec);
+  const ups = h.filter((x) => x.ret > 0).length, rr = (fin / START_CASH - 1) * 100;
+  render(`
+  ${win ? `<h1 class="god-title">${esc(HL[0])}</h1><p class="sub gold">${esc(HL[1])} · 10일 만에 ${pct(rr)}</p>`
+        : `<h1 class="fail-title">원양어선 엔딩 🚢</h1><p class="sub">${esc(n)}님, 200만 원까지 ${won(TEN_GOAL - fin)} 모자랐어요</p>`}
+  <div class="box ten-stage ${win ? 'win' : 'lose'}">
+    ${win ? `<div class="bubbles"><div class="sb">${fillN(LEE_LINES[tp.lee], n)}</div><div class="sb">${fillN(CHEY_LINES[tp.chey], n)}</div></div>` : ''}
+    <canvas id="ten-scene" class="ten-scene"></canvas>
+    ${win ? `<div class="cine-names static"><span>${CHAIRMEN.lee.name}</span><span>${CHAIRMEN.chey.name}</span></div>` : `<div class="shark-talk" id="shark-talk"></div>`}
+  </div>
+  <button class="btn again-top" id="again">⚔️ 한 판 더</button>
+  <div class="box">
+    <div class="kv"><span>최종 금액</span><span class="gold">${won(fin)}</span></div>
+    <div class="kv"><span>목표</span><span>${won(TEN_GOAL)} ${win ? '<span class="tag up">성공</span>' : '<span class="tag down">실패</span>'}</span></div>
+    <div class="kv dim"><span>오른 날</span><span>${ups} / ${h.length}일 · 최고 ${won(S.peak)}</span></div>
+    ${S.lead ? `<div class="kv"><span>리딩방에 쓴 돈</span><span class="down">-${won(S.leadSpend)} (${S.lead}번)</span></div>` : ''}
+  </div>
+  <div class="box rankbox" id="rankbox">
+    <h2 style="margin-top:0">🏆 10일의 전사 랭킹 등록</h2>
+    <div class="row"><input id="nick" class="nick" maxlength="12" placeholder="닉네임 (1~12자)" autocomplete="off"><button class="btn" id="submit" style="flex:none;width:auto;padding:10px 14px">등록</button></div>
+    <div class="dim rank-msg" id="rank-msg"></div>
+    <div class="seg" id="rtabs"><button data-k="ten" class="on">💰 10일의 전사</button></div>
+    <div id="rank-list"></div>
+  </div>
+  <div class="box"><h2 style="margin-top:0">진짜 날짜 공개</h2>
+    <p>${h[0].sec.b} ~ ${h[h.length - 1].sec.s} 실제 장이었어요.</p>
+    <p class="reveal">${esc(story.main)}</p>
+    <table class="hist"><tr><th>매수일</th><th>종목</th><th class="n">수익률</th></tr>
+    ${h.map((x) => `<tr><td>${x.sec.b.slice(2)}</td><td>${esc(x.name)}</td><td class="n ${cls(x.ret)}">${pct(x.ret)}</td></tr>`).join('')}
+    </table>
+  </div>
+  <button class="btn" id="again2">⚔️ 한 판 더</button>
+  <button class="btn ghost" id="home">처음으로</button>`);
+  const restart = () => { const m = S.mode, nn = S.nick; clearSave(m); startGame(m, nn); };
+  $('#again').onclick = restart; $('#again2').onclick = restart; $('#home').onclick = () => { clearSave('ten'); titleScreen(); };
+  rankForm({ max_combo: ups, final_cash: Math.min(1e11, fin), peak_cash: Math.max(0, Math.min(1e11, Math.round(S.peak))), reading_uses: S.lead, title: (win ? '10일의 전사 · 국장의 신' : '10일의 전사 · 원양어선'), mode: 'ten' }, 'ten');
+  // 장면 애니메이션
+  const c = $('#ten-scene'), rid = RID, W = win ? 180 : 120, H = win ? 170 : 110;
+  c.width = W; c.height = H; const g = c.getContext('2d'), t0 = performance.now(), dur = RM() ? 1 : 6500;
+  const frame = (now) => {
+    if (rid !== RID || !c.isConnected) return;
+    g.clearRect(0, 0, W, H);
+    if (win) drawChairmen(g, W, H, now, !RM()); else sharkScene(g, W, H, Math.min(1, (now - t0) / dur), now);
+    if (!RM()) requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+  if (win) { fireworks(); sparkle(); const ft = $('#fx .fx-text'); if (ft) ft.textContent = '🙏 ' + HL[1] + '!'; }
+  else {
+    const lines = SHARK_LINES[tp.sh], box = $('#shark-talk'); let i = 0;
+    const next = () => { if (rid !== RID || !box.isConnected || i >= lines.length) return;
+      const last = i === lines.length - 1, d = document.createElement('div'); d.className = 'sl' + (i === 0 ? ' knock' : '') + (last ? ' last' : ''); d.textContent = (i > 0 && !last ? '🕶️ ' : '') + lines[i];
+      box.appendChild(d); i++; setTimeout(next, RM() ? 0 : 1300); };
+    next();
+  }
 }
 
 /* ---------- 랭킹 (Supabase REST, 공개용 publishable 키) ---------- */
 const SB_URL = 'https://xdowpybbmtshggsyscbs.supabase.co/rest/v1/runs';
 const SB_KEY = 'sb_publishable_3mVV7E1s9WqXaF9e5E6gDA_HpJweAIO';
-const RANK_ORDER = { combo: 'max_combo.desc,final_cash.desc.nullslast,created_at.asc', final: 'final_cash.desc.nullslast,max_combo.desc,created_at.asc' };
+const RANK_ORDER = { combo: 'max_combo.desc,final_cash.desc.nullslast,created_at.asc', final: 'final_cash.desc.nullslast,max_combo.desc,created_at.asc', ten: 'final_cash.desc.nullslast,created_at.asc' };
+const modeQ = (kind) => (kind === 'ten' ? 'mode=eq.ten' : 'mode=eq.combo'); // 예전 기록은 기본값 combo
 async function sb(url, opt = {}) {
   const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 8000);
   try {
@@ -758,12 +1032,12 @@ async function sb(url, opt = {}) {
   } finally { clearTimeout(tm); }
 }
 async function loadTop(kind) {
-  const r = await sb(`${SB_URL}?select=nickname,max_combo,final_cash,reading_uses,title,created_at&order=${RANK_ORDER[kind]}&limit=100`);
+  const r = await sb(`${SB_URL}?select=nickname,max_combo,final_cash,reading_uses,title,created_at&${modeQ(kind)}&order=${RANK_ORDER[kind]}&limit=100`);
   return r.json();
 }
 async function rankOf(kind, me) { // 나보다 확실히 높은 기록 수 + 1 (동점은 같은 등수로 봐요)
   const q = kind === 'combo' ? `or=(max_combo.gt.${me.max_combo},and(max_combo.eq.${me.max_combo},final_cash.gt.${me.final_cash}))` : `final_cash=gt.${me.final_cash}`;
-  const r = await sb(`${SB_URL}?select=nickname&${q}`, { method: 'HEAD', headers: { Prefer: 'count=exact', Range: '0-0' } });
+  const r = await sb(`${SB_URL}?select=nickname&${q}&${modeQ(kind)}`, { method: 'HEAD', headers: { Prefer: 'count=exact', Range: '0-0' } });
   const n = Number((r.headers.get('content-range') || '').split('/')[1]);
   return Number.isFinite(n) ? n + 1 : null;
 }
@@ -779,7 +1053,8 @@ function renderTop(box, rows, kind, me) {
     row.appendChild(el('span', 'rk', i < 3 ? ['🥇', '🥈', '🥉'][i] : String(i + 1)));
     const nm = el('span', 'rn'); nm.appendChild(el('span', '', r.nickname));
     if (Number(r.reading_uses) > 0) nm.appendChild(el('small', 'lead-mark', ` 📢x${Number(r.reading_uses)}`));
-    if (r.title) nm.appendChild(el('small', 'dim', ' ' + r.title));
+    if (kind === 'ten') nm.appendChild(el('small', 'dim', ` 📈${Number(r.max_combo)}승`));
+    else if (r.title) nm.appendChild(el('small', 'dim', ' ' + r.title));
     row.appendChild(nm);
     row.appendChild(el('span', 'rc', kind === 'combo' ? `${r.max_combo}콤보` : (r.final_cash === null || r.final_cash === undefined ? '-' : won(Number(r.final_cash)))));
     list.appendChild(row);
@@ -793,11 +1068,11 @@ function rankTabs(onPick) {
   });
 }
 const failMsg = (box) => { box.innerHTML = ''; box.appendChild(el('p', 'dim', '랭킹을 못 불러왔어요. 인터넷 연결을 확인해 주세요.')); };
-function rankForm(entry) {
+function rankForm(entry, kind0 = 'combo') {
   const nick = $('#nick'), btn = $('#submit'), msg = $('#rank-msg'), list = $('#rank-list');
-  let kind = 'combo', me = null;
+  let kind = kind0, me = null;
   const run = S;
-  nick.value = localStorage.getItem(LS.nick) || '';
+  nick.value = S.nick || localStorage.getItem(LS.nick) || '';
   if (run.submitted) { btn.disabled = true; nick.disabled = true; btn.textContent = '완료'; msg.textContent = '이 판은 이미 등록했어요'; }
   const show = async () => {
     const k = kind;
@@ -816,8 +1091,10 @@ function rankForm(entry) {
       me = { nickname: name, max_combo: entry.max_combo, final_cash: entry.final_cash };
       run.submitted = true; if (S === run) save();
       await show();
+      if (entry.mode === 'ten') { const rt = await rankOf('ten', me).catch(() => null); msg.textContent = rt ? `등록 완료! 10일의 전사 ${rt}등` : '등록 완료!'; }
+      else {
       const [rc, rp] = await Promise.all([rankOf('combo', me).catch(() => null), rankOf('final', me).catch(() => null)]);
-      msg.textContent = rc || rp ? `등록 완료! 콤보 ${rc || '?'}등 · 금액 ${rp || '?'}등` : '등록 완료!';
+      msg.textContent = rc || rp ? `등록 완료! 콤보 ${rc || '?'}등 · 금액 ${rp || '?'}등` : '등록 완료!'; }
     } catch (e) {
       btn.disabled = false; nick.disabled = false;
       msg.textContent = '등록 실패. 인터넷 연결을 확인하고 다시 눌러 주세요';
@@ -829,7 +1106,7 @@ function rankScreen(kind) {
   S = null;
   render(`
   <h1>🏆 랭킹</h1>
-  <div class="seg" id="rtabs"><button data-k="combo" class="${kind === 'combo' ? 'on' : ''}">최고 콤보</button><button data-k="final" class="${kind === 'final' ? 'on' : ''}">최종 금액</button></div>
+  <div class="seg" id="rtabs"><button data-k="combo" class="${kind === 'combo' ? 'on' : ''}">최고 콤보</button><button data-k="final" class="${kind === 'final' ? 'on' : ''}">최종 금액</button><button data-k="ten" class="${kind === 'ten' ? 'on' : ''}">💰 10일의 전사</button></div>
   <div class="box"><div id="rank-list"><p class="dim">불러오는 중...</p></div></div>
   <button class="btn ghost" id="back">처음으로</button>`);
   $('#back').onclick = titleScreen;
@@ -929,6 +1206,6 @@ loadData().then((d) => { DATA = d; if (!S) titleScreen(); })
 
 // 로컬 테스트(Playwright)용 훅. 배포 주소(github.io)에서는 안 생겨요
 if (['localhost', '127.0.0.1'].includes(location.hostname)) {
-  window.__dt = { get S() { return S; }, get DATA() { return DATA; }, reveal, revealHint, idx, day, variant, vIndex, vNo, easyList, turnScreen, startGame, cinema, jackpot, freeze, settle, resultScreen };
+  window.__dt = { get S() { return S; }, get DATA() { return DATA; }, reveal, revealHint, idx, day, variant, vIndex, vNo, easyList, turnScreen, startGame, cinema, jackpot, freeze, settle, resultScreen, tenEndScreen, tenHeadlines, josa, nickScreen, drawChairmen, sharkScene, titleScreen };
 }
 })();
