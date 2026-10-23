@@ -1,0 +1,7 @@
+/**
+ * Galmuri — Copyright (c) 2019–2025 Lee Minseo (quiple@quiple.dev), Reserved Font Name "Galmuri".
+ * SIL Open Font License 1.1 — see fonts/OFL.txt (galmuri@2.40.3, 필요한 3개 파일만 동봉)
+ */
+@font-face{font-family:Galmuri14;font-weight:400;font-display:swap;src:local('Galmuri14 Regular'),url('./Galmuri14.woff2') format('woff2')}
+@font-face{font-family:Galmuri11;font-weight:400;font-display:swap;src:local('Galmuri11 Regular'),url('./Galmuri11.woff2') format('woff2')}
+@font-face{font-family:Galmuri11;font-weight:700;font-display:swap;src:local('Galmuri11 Bold'),url('./Galmuri11-Bold.woff2') format('woff2')}
