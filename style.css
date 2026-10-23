@@ -1,0 +1,61 @@
+:root{--bg:#1b1b2f;--panel:#26264a;--panel2:#30305c;--ink:#f4f1de;--dim:#a9a6c8;--up:#ff4d4d;--down:#4d8dff;--gold:#ffd23f;--line:#0d0d1a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:#111122;color:var(--ink);font-family:'Galmuri11','DungGeunMo',monospace;font-size:14px;line-height:1.45}
+#app{max-width:430px;min-height:100dvh;margin:0 auto;background:var(--bg);position:relative;overflow:hidden;padding-bottom:env(safe-area-inset-bottom)}
+.hidden{display:none!important}
+#hud{position:sticky;top:0;z-index:5;background:var(--line);border-bottom:3px solid var(--gold);padding:8px 12px}
+.hud-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:15px}
+#hud-cash{color:var(--gold)}
+main{padding:12px}
+h1{font-family:'Galmuri14','Galmuri11',monospace;font-size:28px;text-align:center;margin:18px 0 4px;color:var(--gold);text-shadow:3px 3px 0 var(--up)}
+h2{font-size:16px;margin:14px 0 8px;color:var(--gold)}
+.sub{text-align:center;color:var(--dim);margin:0 0 12px}
+.box{background:var(--panel);border:3px solid var(--line);box-shadow:4px 4px 0 var(--line);padding:10px;margin:10px 0}
+.btn{display:block;width:100%;font:inherit;font-size:16px;padding:12px;margin:8px 0;border:3px solid var(--line);background:var(--gold);color:#1b1b2f;box-shadow:4px 4px 0 var(--line);cursor:pointer}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--line)}
+.btn.ghost{background:var(--panel2);color:var(--ink)}
+.btn:disabled{opacity:.45}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row>.btn{flex:1;min-width:0}
+.up{color:var(--up)}.down{color:var(--down)}.dim{color:var(--dim)}
+.news li{margin:4px 0}
+.news ul{margin:0;padding-left:18px}
+.nasdaq{display:flex;justify-content:space-between;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card{background:var(--panel);border:3px solid var(--line);padding:6px;cursor:pointer;min-width:0}
+.card.sel{border-color:var(--gold);background:var(--panel2)}
+.card .nm{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .tg{font-size:10px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:14px}
+.card .px{font-size:12px;text-align:right}
+canvas.chart{width:100%;height:44px;image-rendering:pixelated;display:block;background:#15152b;margin:4px 0}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{flex:1;font:inherit;padding:8px 4px;border:3px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer}
+.seg button.on{background:var(--gold);color:#1b1b2f}
+input[type=range]{width:100%;accent-color:var(--gold)}
+.kv{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:2px 0}
+.big{font-size:26px;text-align:center;margin:6px 0}
+.res-list .r{display:flex;justify-content:space-between;gap:6px;padding:4px 0;border-bottom:2px dashed var(--panel2)}
+.res-list .r.me{background:var(--panel2)}
+.tag{font-size:11px;padding:0 4px;border:2px solid currentColor;margin-left:4px;white-space:nowrap}
+#ant{display:block;margin:6px auto;width:96px;height:96px;image-rendering:pixelated}
+.bounce{animation:bounce .6s steps(2) infinite}
+@keyframes bounce{50%{transform:translateY(-6px)}}
+.shake{animation:shake .5s steps(6) 2}
+@keyframes shake{0%,100%{transform:translate(0)}20%{transform:translate(-8px,3px)}40%{transform:translate(7px,-4px)}60%{transform:translate(-6px,-2px)}80%{transform:translate(5px,4px)}}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:10}
+.spark{position:absolute;width:8px;height:8px;background:var(--gold);box-shadow:0 0 0 2px var(--up);animation:spark 1.2s steps(6) forwards}
+@keyframes spark{to{transform:translate(var(--dx),var(--dy));opacity:0}}
+.sticky-buy{position:sticky;bottom:0;background:var(--bg);border-top:3px solid var(--gold);padding:8px 0 4px;margin-top:10px}
+table.hist{width:100%;border-collapse:collapse;font-size:12px}
+table.hist td,table.hist th{padding:3px 2px;border-bottom:2px dashed var(--panel2);text-align:left}
+table.hist td.n{text-align:right}
+.fake{color:var(--gold);font-size:11px}
+.card .px{display:flex;justify-content:space-between;gap:4px;flex-wrap:wrap}
+#modal{position:fixed;inset:0;z-index:20;background:rgba(10,10,25,.75);display:flex;align-items:flex-end;justify-content:center}
+#modal .sheet{width:100%;max-width:430px;background:var(--bg);border-top:3px solid var(--gold);padding:14px 12px calc(14px + env(safe-area-inset-bottom));max-height:90%;overflow:auto}
+.big-nm{font-size:18px}
+.summary{margin:8px 0;color:var(--ink)}
+canvas.chart.big{height:150px}
+.wipe{font-size:12px;min-height:18px}
+.rules ul{padding-left:18px;margin:0}
+.rules li{margin:3px 0}
