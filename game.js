@@ -249,7 +249,7 @@ const sciNews = (sc, s) => fillSci(SCI_TPL[sc[1] % SCI_TPL.length][0], s);
 
 /* ---------- 상태 ---------- */
 // 데이터 v6: day = [나스닥, 종목풀, 비밀(풀 결과·날짜), 보통 구성, 잭팟 구성, 쉬운 구성(오름 4·내림 2)]. 구성 = [풀 번호 6개, 뉴스, 찌라시, 비밀(리딩방 픽·헛소문 표시)]
-const LEAD_COSTS = [0.10, 0.15, 0.20], VSALT = 100003, JPV = 8, JP_P = 0.05, JP_FROM = 3, EASY0 = 10, EASY_TURNS = 3; // 잭팟: 4턴째부터 5%. 첫 3턴은 쉬운 구성
+const LEAD_MAX = 3, LEAD_COSTS = [0.10, 0.15, 0.20], VSALT = 100003, JPV = 8, JP_P = 0.05, JP_FROM = 3, EASY0 = 10, EASY_TURNS = 3; // 잭팟: 4턴째부터 5%. 첫 3턴은 쉬운 구성
 const leadCost = () => LEAD_COSTS[Math.min(S.lead, LEAD_COSTS.length - 1)];
 const SAVE_KEY = 'dantaking_inf_run_v6';
 const vIndex = (i) => (Math.imul(S.seed ^ (i * 40503), 2654435761) >>> 0) % DATA.days[i][3].length; // 판마다 다른 구성
@@ -302,7 +302,7 @@ function titleScreen() {
       <li>매일 6종목 중 1개를 골라 전 재산(시작 100만 원)으로 오늘 종가에 사요</li>
       <li>내일 종가가 <b class="up">오르면 콤보 +1</b>, 돈도 그만큼 불어나요. <b class="down">떨어지거나 보합(0%)이면 바로 게임오버</b></li>
       <li>오늘의 뉴스엔 헛소문과 찌라시가 섞여 있어요. 가끔 뜨는 <b>🧪 국장은 과학</b> 뉴스는… 믿거나 말거나</li>
-      <li>리딩방은 돈을 내고 들어가요 (현금의 10% → 15% → 20%). 꽤 잘 맞히지만 쪽박 찰 수도 있어요</li>
+      <li>리딩방은 돈을 내고 들어가요 (현금의 10% → 15% → 20%, 한 판에 최대 3번). 꽤 잘 맞히지만 쪽박 찰 수도 있어요</li>
       <li>최고 콤보와 최종 금액으로 랭킹에 도전해요. 날짜는 끝나면 공개!</li>
     </ul>
   </div>`);
@@ -372,12 +372,19 @@ function turnScreen(resumed) {
 /* ---------- 리딩방 (유료, 현금의 10%) ---------- */
 function leadBox() {
   const el = $('#chat'), d = day();
+  if (!S.lead_on && S.lead >= LEAD_MAX) {
+    el.innerHTML = `<div class="chat-head"><span>🚀 수익보장 리딩방</span><span class="dim">게임 속 가상</span></div>
+      <button class="btn tipbtn" id="buylead" disabled>🚫 리딩방 강퇴당함 <small>남은 횟수 0/${LEAD_MAX}</small><small class="warn">"회원님은 너무 많이 따라오셨어요. 다른 방 알아보세요"</small></button>
+      <div class="chat-foot dim">이번 판은 이제 혼자 힘으로 가야 해요</div>`;
+    return;
+  }
   if (!S.lead_on) {
     el.innerHTML = `<div class="chat-head"><span>🚀 수익보장 리딩방</span><span class="dim">게임 속 가상</span></div>
-      <button class="btn tipbtn" id="buylead">리딩방 입장 <small>현금의 ${Math.round(leadCost() * 100)}% · -${won(S.cash * leadCost())}</small><small class="warn">⚠️ 쪽박 찰 수도 있음</small></button>
+      <button class="btn tipbtn" id="buylead">리딩방 입장 <small>현금의 ${Math.round(leadCost() * 100)}% · -${won(S.cash * leadCost())} · 남은 횟수 ${LEAD_MAX - S.lead}/${LEAD_MAX}</small><small class="warn">⚠️ 쪽박 찰 수도 있음</small></button>
       <div class="chat-foot dim">돈 내면 오늘의 픽을 찍어 준대요. 들어갈수록 입장료가 올라요</div>`;
     $('#buylead').onclick = (e) => {
       e.stopPropagation();
+      if (S.lead >= LEAD_MAX || S.lead_on) return;
       const c = Math.round(S.cash * leadCost());
       S.cash -= c; S.leadSpend += c; S.lead++; S.lead_on = true;
       save(); hud(); leadBox();
