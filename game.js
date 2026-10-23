@@ -194,6 +194,59 @@ const RUMOR_TPL = [
   '[찌라시] 큰손이 {n} 쓸어 담는 중이라는데'];
 const RUMOR_GOOD = [true, true, false, true, false, true, false, true]; // 문구마다 호재/악재. 방향이 맞으면 [진짜]
 
+
+/* ---------- 🧪 국장은 과학 (억지 연결고리 뉴스, 게임 속 가상) ----------
+   실제 국장 해프닝(태풍 노루→노루페인트, 영풍→영풍제지, 손오공, 깐부치킨, 초전도체, 사외이사 동문 테마 등)에서 영감.
+   [뉴스, 오르면 '과학적 설명', 떨어지면 '과학 실패' 한마디]. {n}=종목명 {a}=앞 두 글자 {c}=첫 글자 {t}=테마 */
+const SCI_TPL = [
+  ['기상청, 다음 태풍 이름은 \'{a}\'… {n} 들썩?', '태풍 이름 = 회사 이름 앞글자. 비 오면 오른다. 이게 과학이다', '태풍이 비껴갔대요. 이름만 같고 진로는 달랐다'],
+  ['{n}, 이름이 오늘 터진 대형 호재 회사랑 한 글자 빼고 똑같다', '이름이 비슷하면 같은 회사다. 개미의 눈은 정확하다', '다른 회사였다… 공시 한 번만 읽었어도'],
+  ['해외 FDA 승인 기업 이름이 \'{a}텍\'… {n}이랑 철자 하나 차이', '철자 하나쯤이야. 시장은 대충 읽는다', '미국 회사였어요. 스펠링 확인은 필수'],
+  ['인기 만화 주인공 이름이 \'{a}\'… 작가 신작 발표에 {n} 소환', '주인공 이름 = 회사 이름. 만화 신작 = 실적 개선', '만화는 만화일 뿐… 현실은 냉정했다'],
+  ['재계 총수들 회동 장소가 \'{a}\' 근처 식당이래요 → {n} 수혜?', '회장님 밥 먹은 곳 근처 회사는 무조건 간다', '회장님이 메뉴를 바꿨대요'],
+  ['젠슨 황(?)이 \'{c}\'로 시작하는 음식 좋아한다는 썰 → {n}', 'AI 대장이 좋아하는 글자로 시작하는 회사 = AI 수혜주', '알고 보니 그 썰은 합성이었다'],
+  ['유력 대선주자 A씨, {n} 사외이사랑 대학 동문이라는데?', '동문 = 같은 편 = 정책 수혜. 국장의 삼단논법', 'A씨가 그 사외이사 얼굴도 모른대요'],
+  ['{n} 회장 본관이 유력 정치인 B씨랑 같다는 분석', '같은 본관 = 한 가족 = 테마주. 족보가 곧 차트', '본관만 같고 촌수는 30촌 이상이었다'],
+  ['{n} 전 사외이사, 옛날에 정치인 캠프에 있었대요', '전직, 옛날, 캠프… 세 단어면 상한가 충분', '캠프 명단에 그런 사람 없었대요'],
+  ['국무총리 후보 C씨가 10년 전 {n} 공장 견학했다는 사진 발견', '한 번 와 봤으면 평생 관련주', '사진 속 공장은 옆 회사였다'],
+  ['정치인 D씨 지역구에 {n} 공장이 있다는 소식', '지역구 = 내 구역 = 내 회사. 지리도 과학이다', '공장 이사 간 지 5년 됐대요'],
+  ['{n}, 상온 초전도체 연구소에 10년 전 소액 투자했다는 얘기', '초전도체 + 지분 0.몇 % = 시총 따블. 물리학 만세', '논문이 또 반박당했다. 저항은 0이 아니었다'],
+  ['\'{t}\' 꿈의 신소재 논문 아카이브에 올라와… {n} 관련주로 묶여', '논문이 나오면 일단 산다. 검증은 나중에', '재현 실험 실패. 꿈의 물질은 꿈이었다'],
+  ['{n}, 20년 전 국책 과제에 이름 한 줄 올렸던 이력 재조명', '이력 한 줄 = 기술력 무한대', '그 과제 결과 보고서가 공개됐다…'],
+  ['동해에 석유 매장 가능성! {n}, 이름에 기름 냄새 난다는 개미들', '석유 회사 같은 이름이면 석유가 나온다', '시추 결과 발표 전에 차익실현 폭탄'],
+  ['국민 \'돈쭐\' 캠페인 시작? {n} 미담 커뮤니티에 확산', '착한 기업은 오른다. 감동이 곧 수급', '감동은 3일, 공매도는 영원'],
+  ['수돗물에서 벌레 나왔대요… 이름에 \'{c}\' 들어가서 {n} 매수?', '벌레 → 구충제 → 비슷한 글자 회사. 완벽한 연결', '벌레는 잡혔고 주가도 잡혔다'],
+  ['해외 댐이 위험하다는 뉴스 → 홍수 → 비료 → 왠지 {n}', '물 → 흙 → 비료 → {t}. 나비효과 매매', '댐은 멀쩡했다'],
+  ['오늘 서울 날씨 맑음 ☀️ 회사 이름 \'{a}\'랑 기운이 맞는다는 역술인', '사주가 맞으면 주가도 맞는다. 명리학 트레이딩', '역술인이 날짜를 착각했대요'],
+  ['서울시 새 사업 이름이 \'{a}-넷\'?! 회사 {n}이랑 이름 겹쳐', '사업명이 회사명이면 그 회사가 하는 거다', '사업명이었어요. 회사랑은 남남'],
+  ['{n}, 아이돌 신곡 가사에 회사 이름 비슷한 단어 나옴', '가사에 나오면 팬덤이 산다. K-팝은 과학', '가사 다시 들어보니 다른 단어였다'],
+  ['미국 대선 후보 이름 한자 풀이가 {n}이랑 뜻이 같다고?', '한자 뜻이 같으면 해외 호재도 내 것', '번역기가 잘못 풀었대요'],
+  ['오늘이 {n} 창립 기념일 근처라는 소식', '생일엔 선물이 온다. 주가도 선물이다', '생일 파티는 회사만 했다'],
+  ['유명 유튜버가 영상 배경에 {n} 로고 비슷한 게 보였대요', '0.5초 노출 = 광고 효과 = 실적 서프라이즈', '로고가 아니라 벽지 무늬였다'],
+  ['{n} 대표 사돈의 팔촌이 장관 후보자랑 동창이라는 찌라시', '사돈의 팔촌의 동창. 거리 멀수록 신비롭게 오른다', '장관 후보 낙마. 팔촌도 같이 낙마'],
+  ['신임 장관 이름에 \'{c}\' 자가 들어간다 → {n} 들썩', '장관 이름 한 글자 = 정책 수혜. 한글은 과학적이다', '장관님 성씨가 달랐다'],
+  ['{n}, 대기업 \'{a}그룹\'이랑 이름만 비슷한데 계열사냐는 문의 폭주', '이름 비슷 = 계열사 = 대기업 수혜', '회사 측 "저희 거기랑 아무 관계 없습니다"'],
+  ['신작 게임 보스 이름이 \'{a}\'… {n} 게이머 매수세?', '보스를 잡으면 주가도 잡힌다(위로)', '보스가 너무 셌다'],
+  ['이번 주 로또 1등 번호가 {n} 종목코드랑 두 개 겹쳐', '로또 번호 = 종목코드. 확률은 과학이다', '나머지 네 개가 안 맞았다'],
+  ['외계 신호 포착(?) 뉴스에 이름이 우주 느낌 나는 {n} 관련주로', '우주 느낌 + 신호 = 우주항공 테마 합류', '외계 신호가 전자레인지였대요'],
+  ['반도체 행사장 기념품이 {n} 제품 닮았다는 인증샷', '닮으면 공급한다. 공급하면 오른다', '중국산 기념품이었다'],
+  ['고양이 밈 대유행… {n} 이름에서 \'냥\' 소리 난다는 주장', '밈 = 수급. 귀여우면 상한가', '밈은 하루 만에 식었다'],
+  ['{n} 공장 근처 맛집이 방송 탔대요', '맛집 손님 → 공장 구경 → 주주 유입. 먹방 경제학', '맛집만 대박 났다'],
+  ['전염병 뉴스에 \'{t}\' 관련주 다 묶였는데 {n}도 끼었어요', '마스크 한 장 안 만들어도 테마는 테마', '알고 보니 마스크 근처도 안 감'],
+  ['노벨상 수상자 연구 분야가 \'{t}\'래요 → {n} 수혜?', '노벨상 = 기술 검증 완료 = 우리 회사 이야기', '수상자가 "그 회사 처음 듣는다"고'],
+  ['대형 스포츠 경기 시구자가 {n} 지역 출신이라는데', '시구 = 상징 = 지역 기업 랠리', '공이 포수 미트에 못 갔다'],
+  ['{n}, 회사 이름 거꾸로 읽으면 대박 단어 된다는 발견', '거꾸로 읽어도 호재. 회문의 과학', '거꾸로 읽으니 \'손절\'이 나왔다'],
+  ['해외 동명 기업이 대형 백신 계약! 이름이 {n}이랑 같다', '이름 같으면 계약도 같이. 글로벌 과학', '그 회사는 미국 회사. 우리 {n}은 그냥 {n}'],
+  ['오늘 아침 무지개 떴대요 🌈 {n} 로고 색이랑 같다', '무지개 = 길조 = 빨간 양봉', '무지개 끝엔 파란 음봉이 있었다'],
+  ['{n} 대표가 출근길에 웃었다는 목격담', '대표 미소 = 내부 호재. 관상은 과학이다', '그냥 커피가 맛있었대요'],
+  ['국회 청문회에서 \'{t}\' 단어가 3번 나왔어요 → {n}', '3번 언급 = 정책 확정. 셋은 과학', '네 번째엔 규제라고 말했다'],
+  ['우리 동네 맘카페에서 {n} 이야기가 나왔대요', '맘카페 = 진짜 바닥 민심 = 바닥 신호', '맘카페 글은 그 회사 직원이 썼다'],
+  ['{n}, 종목토론방 \'가즈아\' 글이 하루 만에 3배', '가즈아 3배 = 주가 3배 아님? 비례의 법칙', '가즈아는 갔다… 아래로'],
+  ['새로 발견된 소행성 이름이 \'{a}\'… {n} 우주 테마 편입?', '하늘의 이름이 땅의 주가를 올린다', '소행성이 너무 멀었다']];
+const fillSci = (t, s) => { const nm = s[0], th = (s[1] || []).map((x) => shortT(DATA.themes[x])); const v = { n: nm, a: [...nm].slice(0, 2).join(''), c: [...nm][0], t: th[0] || '신사업' };
+  return esc(t).replace(/\{(n|a|c|t)\}/g, (_, k) => esc(v[k])); };
+const sciNews = (sc, s) => fillSci(SCI_TPL[sc[1] % SCI_TPL.length][0], s);
+
 /* ---------- 상태 ---------- */
 // 데이터 v6: day = [나스닥, 종목풀, 비밀(풀 결과·날짜), 보통 구성, 잭팟 구성, 쉬운 구성(오름 4·내림 2)]. 구성 = [풀 번호 6개, 뉴스, 찌라시, 비밀(리딩방 픽·헛소문 표시)]
 const LEAD_COSTS = [0.10, 0.15, 0.20], VSALT = 100003, JPV = 8, JP_P = 0.05, JP_FROM = 3, EASY0 = 10, EASY_TURNS = 3; // 잭팟: 4턴째부터 5%. 첫 3턴은 쉬운 구성
@@ -214,7 +267,7 @@ const LS = { combo: 'dantaking_inf_best_combo', final: 'dantaking_inf_best_final
 const bestOf = (k) => Number(localStorage.getItem(LS[k]) || 0);
 const idx = () => S.i;
 // 화면용 하루: [나스닥, 뉴스, 6종목, -, -, 찌라시]
-const day = () => { const d = DATA.days[S.i], v = variant(S.i); return [d[0], v[1], v[0].map((j) => d[1][j]), null, null, v[2]]; };
+const day = () => { const d = DATA.days[S.i], v = variant(S.i); return [d[0], v[1], v[0].map((j) => d[1][j]), null, null, v[2], v[4] || 0]; };
 /* 새로고침해도 같은 턴/결과로 돌아와요 */
 function save() { try { if (S) localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { /* 저장 실패해도 게임은 계속 */ } }
 function clearSave() { localStorage.removeItem(SAVE_KEY); }
@@ -248,7 +301,7 @@ function titleScreen() {
       <li>2020년 이후 <b>랜덤한 실제 거래일</b>에서 시작해요. 턴 제한 없음!</li>
       <li>매일 6종목 중 1개를 골라 전 재산(시작 100만 원)으로 오늘 종가에 사요</li>
       <li>내일 종가가 <b class="up">오르면 콤보 +1</b>, 돈도 그만큼 불어나요. <b class="down">떨어지거나 보합(0%)이면 바로 게임오버</b></li>
-      <li>오늘의 뉴스엔 헛소문과 찌라시가 섞여 있어요</li>
+      <li>오늘의 뉴스엔 헛소문과 찌라시가 섞여 있어요. 가끔 뜨는 <b>🧪 국장은 과학</b> 뉴스는… 믿거나 말거나</li>
       <li>리딩방은 돈을 내고 들어가요 (현금의 10% → 15% → 20%). 꽤 잘 맞히지만 쪽박 찰 수도 있어요</li>
       <li>최고 콤보와 최종 금액으로 랭킹에 도전해요. 날짜는 끝나면 공개!</li>
     </ul>
@@ -297,7 +350,8 @@ function turnScreen(resumed) {
   </div>
   <div class="box nasdaq"><span>어젯밤 나스닥</span><span class="${cls(d[0])}">${pct(d[0])}</span></div>
   <div class="box news"><h2 style="margin-top:0">오늘의 뉴스</h2><ul>${d[1].map((n) => `<li>${esc(n)}</li>`).join('')}
-    ${rumor ? `<li class="rumor" data-i="${rumor[0]}">${esc(RUMOR_TPL[rumor[1] % RUMOR_TPL.length]).replace('{n}', `<b>${esc(d[2][rumor[0]][0])}</b>`)}</li>` : ''}</ul></div>
+    ${rumor ? `<li class="rumor" data-i="${rumor[0]}">${esc(RUMOR_TPL[rumor[1] % RUMOR_TPL.length]).replace('{n}', `<b>${esc(d[2][rumor[0]][0])}</b>`)}</li>` : ''}
+    ${d[6] ? `<li class="sci" data-i="${d[6][0]}"><span class="sci-tag">🧪 국장은 과학</span> ${sciNews(d[6], d[2][d[6][0]])}</li>` : ''}</ul></div>
   <div class="box chat" id="chat"></div>
   <h2>오늘의 6종목 <span class="dim" style="font-size:12px">하나 골라요. 내일 오르면 생존!</span></h2>
   <div class="cards">${d[2].map((s, i) => `
@@ -310,6 +364,7 @@ function turnScreen(resumed) {
   document.querySelectorAll('canvas.chart').forEach((c) => drawChart(c, d[2][Number(c.dataset.c)][5]));
   document.querySelectorAll('.card').forEach((e) => e.onclick = () => detail(Number(e.dataset.i)));
   const r = $('.rumor'); if (r) r.onclick = () => detail(Number(r.dataset.i));
+  const sc = $('.news li.sci'); if (sc) sc.onclick = () => detail(Number(sc.dataset.i));
   drawScene($('#scene'), tier, mood);
   leadBox();
 }
@@ -365,8 +420,9 @@ function settle(k) {
   if (isLast) { S.clear = true; S.over = true; }
   if (hint && sec.r[hint[0]] > 0) S.leadHit++;
   if (rumor && k === rumor[0]) { S.rumorFollow++; if (ret > 0) S.rumorHit++; }
+  const scn = d[6]; if (scn && k === scn[0]) { S.sciFollow = (S.sciFollow || 0) + 1; if (ret > 0) S.sciHit = (S.sciHit || 0) + 1; }
   S.hist.push({ sec, name: s[0], ret, nas: d[0], cash: S.cash });
-  const R = { k, s, sec, ret, pre, after, survived, rumor, hint, jp: S.jp, milestone, leadFail: !!(hint && hint[0] === k && !survived), isLast };
+  const R = { k, s, sec, ret, pre, after, survived, rumor, sci: scn || 0, hint, jp: S.jp, milestone, leadFail: !!(hint && hint[0] === k && !survived), isLast };
   S.phase = 'result'; S.R = R; S.pick = null; save();
   resultScreen(R);
 }
@@ -405,6 +461,12 @@ function resultScreen(R) {
     <div class="kv"><span>${esc(d[2][R.hint[0]][0])}${R.k === R.hint[0] ? ' <span class="dim">(따라 삼)</span>' : ''}</span><span class="${cls(r)}">${pct(r)}</span></div></div>`; })() : ''}
   <div class="box news"><h2 style="margin-top:0">뉴스 결과</h2><ul>${d[1].map((n, i) => `<li>${esc(n)} ${R.sec.f[i] ? '<span class="fake">[헛소문]</span>' : '<span class="dim">[진짜]</span>'}</li>`).join('')}
     ${R.rumor ? `<li>${esc(RUMOR_TPL[R.rumor[1] % RUMOR_TPL.length]).replace('{n}', esc(d[2][R.rumor[0]][0]))} <span class="${cls(R.sec.r[R.rumor[0]])}">(${pct(R.sec.r[R.rumor[0]])})</span> ${(R.sec.r[R.rumor[0]] > 0) === RUMOR_GOOD[R.rumor[1] % RUMOR_GOOD.length] ? '<span class="up">[진짜였다]</span>' : '<span class="fake">[헛소문]</span>'}</li>` : ''}</ul></div>
+  ${R.sci ? (() => { const sk = R.sci[0], sr = R.sec.r[sk], ok = sr > 0, T3 = SCI_TPL[R.sci[1] % SCI_TPL.length], st = d[2][sk];
+    return `<div class="box sci-card ${ok ? 'ok' : 'ng'}">
+    <div class="sci-head"><span>${ok ? '🧪 국장은 과학입니다' : '💥 과학 실패'}</span><span class="tag ${ok ? 'up' : 'down'}">믿거나 말거나</span></div>
+    <div class="kv"><span>${esc(st[0])}${R.k === sk ? ' <span class="dim">(따라 삼)</span>' : ''}</span><span class="${cls(sr)}">${pct(sr)}</span></div>
+    <div class="sci-news dim">"${sciNews(R.sci, st)}"</div>
+    <div class="sci-why">${ok ? '🔬 연결고리: ' + fillSci(T3[1], st) : '🧯 ' + fillSci(T3[2], st)}</div></div>`; })() : ''}
   <div class="box res-list"><h2 style="margin-top:0">6종목 결과</h2>
     ${rows.map((x) => `<div class="r ${x.i === R.k ? 'me' : ''}"><span>${x.i === R.k ? '내 픽 · ' : ''}${esc(x.s[0])}${tag(x.l)}</span><span class="${cls(x.r)}">${pct(x.r)}</span></div>`).join('')}
   </div>
@@ -618,6 +680,7 @@ function titles() {
   if (S.jpWin) B.push(`💰잭팟 ${S.jpWin}회`);
   if (S.lead) B.push(`📱리딩방 ${S.lead}번 (${won(S.leadSpend)})`);
   if (S.rumorFollow) B.push(`📰찌라시 따라감 ${S.rumorFollow}회`);
+  if (S.sciFollow) B.push(`🧪과학 신봉 ${S.sciFollow}회 (적중 ${S.sciHit || 0})`);
   if (pk > START_CASH) B.push(`🏠${HOMES[homeTier(pk)].name} 찍어봄`);
   [5, 10, 20].filter((m) => c >= m).forEach((m) => B.push(`🏅${m}콤보`));
   if (fin > START_CASH) B.push(`💵본전 이상 (${pct((fin / START_CASH - 1) * 100)})`);
