@@ -176,3 +176,11 @@ canvas.scene{width:128px;height:72px;image-rendering:pixelated;flex:none;border:
 .sci-news{font-size:12px;margin:4px 0}
 .sci-why{font-size:13px;margin-top:4px;padding:6px;border:2px dashed #7dffb0}
 .sci-card.ng .sci-why{border-color:#8a8aa0}
+/* 😐 보합 */
+.flat-title{font-size:44px;text-align:center;color:#c8c8d8;text-shadow:3px 3px 0 #30305c;margin:8px 0 0;animation:pop .5s steps(3)}
+.flat-title small{display:block;font-size:13px;letter-spacing:2px;color:var(--gold)}
+.big.flat,.fx-text.flat{color:#c8c8d8}
+.tag.dimtag{color:#c8c8d8;border-color:#8a8aa0}
+.fx-flat{background:rgba(120,120,140,.28)}
+.fx-flat .zz{position:absolute;top:-10px;color:#c8c8d8;font-size:18px;animation:snow 1.6s steps(8) forwards}
+.fx-text.flat{text-shadow:3px 3px 0 #30305c}

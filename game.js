@@ -300,7 +300,7 @@ function titleScreen() {
     <ul>
       <li>2020년 이후 <b>랜덤한 실제 거래일</b>에서 시작해요. 턴 제한 없음!</li>
       <li>매일 6종목 중 1개를 골라 전 재산(시작 100만 원)으로 오늘 종가에 사요</li>
-      <li>내일 종가가 <b class="up">오르면 콤보 +1</b>, 돈도 그만큼 불어나요. <b class="down">떨어지거나 보합(0%)이면 바로 게임오버</b></li>
+      <li>내일 종가가 <b class="up">오르면 콤보 +1</b>, 돈도 그만큼 불어나요. <b class="down">떨어지면 바로 게임오버</b>. 보합(0%)이면 본전치기로 살아남지만 콤보는 그대로</li>
       <li>오늘의 뉴스엔 헛소문과 찌라시가 섞여 있어요. 가끔 뜨는 <b>🧪 국장은 과학</b> 뉴스는… 믿거나 말거나</li>
       <li>리딩방은 돈을 내고 들어가요 (현금의 10% → 15% → 20%, 한 판에 최대 3번). 꽤 잘 맞히지만 쪽박 찰 수도 있어요</li>
       <li>최고 콤보와 최종 금액으로 랭킹에 도전해요. 날짜는 끝나면 공개!</li>
@@ -416,20 +416,21 @@ function detail(i) {
 
 function settle(k) {
   const d = day(), sec = reveal(idx()), ret = sec.r[k], s = d[2][k];
-  const pre = S.cash, survived = ret > 0;
+  const pre = S.cash, survived = ret >= 0, flat = ret === 0; // 보합(0%)은 살아남지만 콤보는 그대로
   const after = pre * (1 + ret / 100);
   const rumor = d[5], hint = S.lead_on ? revealHint(idx()) : null;
-  if (survived && S.jp) S.jpWin++;
-  if (survived) { S.combo++; S.cash = after; S.peak = Math.max(S.peak, after); if (ret >= 29) S.ups++; }
+  if (ret > 0 && S.jp) S.jpWin++;
+  if (flat) { S.flats = (S.flats || 0) + 1; }
+  else if (survived) { S.combo++; S.cash = after; S.peak = Math.max(S.peak, after); if (ret >= 29) S.ups++; }
   else { S.cash = after; S.over = true; }
-  const milestone = survived && [5, 10, 20].includes(S.combo) ? S.combo : 0;
+  const milestone = ret > 0 && [5, 10, 20].includes(S.combo) ? S.combo : 0;
   const isLast = survived && S.i + 1 >= DATA.days.length;
   if (isLast) { S.clear = true; S.over = true; }
   if (hint && sec.r[hint[0]] > 0) S.leadHit++;
   if (rumor && k === rumor[0]) { S.rumorFollow++; if (ret > 0) S.rumorHit++; }
   const scn = d[6]; if (scn && k === scn[0]) { S.sciFollow = (S.sciFollow || 0) + 1; if (ret > 0) S.sciHit = (S.sciHit || 0) + 1; }
   S.hist.push({ sec, name: s[0], ret, nas: d[0], cash: S.cash });
-  const R = { k, s, sec, ret, pre, after, survived, rumor, sci: scn || 0, hint, jp: S.jp, milestone, leadFail: !!(hint && hint[0] === k && !survived), isLast };
+  const R = { k, s, sec, ret, pre, after, survived, flat, rumor, sci: scn || 0, hint, jp: S.jp, milestone, leadFail: !!(hint && hint[0] === k && !survived), isLast };
   S.phase = 'result'; S.R = R; S.pick = null; save();
   resultScreen(R);
 }
@@ -447,41 +448,43 @@ function resultScreen(R) {
   const rows = d[2].map((s, i) => ({ s, i, r: R.sec.r[i], l: L[i] })).sort((a, b) => b.r - a.r);
   const mi = rows.findIndex((x) => x.i === R.k); rows.unshift(rows.splice(mi, 1)[0]);
   const tag = (l) => (l ? `<span class="tag ${l === '상한가' || l === '1등' ? 'up' : 'down'}">${l}</span>` : '');
-  const mood = !R.survived ? 'broke' : 'happy';
+  const mood = !R.survived ? 'broke' : R.flat ? 'meh' : 'happy';
   const pnl = R.after - R.pre;
   render(`
-  ${R.survived ? `<div class="combo-punch" id="punch">${S.combo}<small>COMBO</small></div>` : `<div class="gameover-title">게임오버</div>`}
-  <canvas id="ant" width="16" height="16" class="${R.survived ? 'bounce' : ''}"></canvas>
-  ${R.jp ? `<div class="box jp-banner">${R.survived ? '💰 잭팟!! 6개 중 오르는 건 딱 이것 하나였어요' : '💰 사실 잭팟 턴이었어요. 6개 중 하나만 상한가, 나머지는 전부 하락'}</div>` : ''}
+  ${R.flat ? `<div class="flat-title">😐 보합!<small>${S.combo}콤보 유지</small></div>` : R.survived ? `<div class="combo-punch" id="punch">${S.combo}<small>COMBO</small></div>` : `<div class="gameover-title">게임오버</div>`}
+  <canvas id="ant" width="16" height="16" class="${R.survived && !R.flat ? 'bounce' : ''}"></canvas>
+  ${R.jp ? `<div class="box jp-banner">${R.ret > 0 ? '💰 잭팟!! 6개 중 오르는 건 딱 이것 하나였어요' : '💰 사실 잭팟 턴이었어요. 6개 중 하나만 상한가, 나머지는 전부 하락'}</div>` : ''}
   <div class="box">
     <div class="kv"><span>${esc(R.s[0])}${tag(L[R.k])}</span><span class="dim">${won(R.s[3])} → ${won(tick(R.s[3] * (1 + R.ret / 100)))}</span></div>
     <div class="big slot ${cls(R.ret)}" id="slot-pct">${pct(R.ret)}</div>
     <div class="big2 ${cls(pnl)}" id="slot-pnl">${pnl >= 0 ? '+' : ''}${won(pnl)}</div>
     <div class="kv"><span>현재 현금</span><span class="gold">${won(S.cash)}</span></div>
-    ${!R.survived ? `<div class="big down">${R.ret === 0 ? '보합(0%)도 탈락!' : '떨어졌다…'}</div>` : ''}
+    ${!R.survived ? `<div class="big down">떨어졌다…</div>` : ''}
+    ${R.flat ? `<div class="big flat">😐 본전치기 — 콤보 유지</div><div class="center dim">한 푼도 안 벌고 하루를 버렸다. 그래도 살았다!</div>` : ''}
     ${R.leadFail ? `<div class="big down">🧽 설거지 당했다! 쪽박</div>` : ''}
     ${R.isLast ? `<div class="big gold">🏁 완주! 시장 휴장</div><div class="center dim">더 이상 남은 장이 없어요</div>` : ''}
   </div>
   ${R.milestone ? `<div class="box milestone">🔥 ${R.milestone}콤보 달성! ${MILESTONE_TXT[R.milestone]}</div>` : ''}
-  ${R.hint ? (() => { const r = R.sec.r[R.hint[0]], hit = r > 0; return `<div class="box chat">
-    <div class="chat-head"><span>🚀 리딩방 결과</span><span class="tag ${hit ? 'up' : 'down'}">${hit ? '적중 🎯' : '설거지 🧽'}</span></div>
+  ${R.hint ? (() => { const r = R.sec.r[R.hint[0]], hit = r > 0, fl = r === 0; return `<div class="box chat">
+    <div class="chat-head"><span>🚀 리딩방 결과</span><span class="tag ${hit ? 'up' : fl ? 'dimtag' : 'down'}">${hit ? '적중 🎯' : fl ? '본전 😐' : '설거지 🧽'}</span></div>
     <div class="kv"><span>${esc(d[2][R.hint[0]][0])}${R.k === R.hint[0] ? ' <span class="dim">(따라 삼)</span>' : ''}</span><span class="${cls(r)}">${pct(r)}</span></div></div>`; })() : ''}
   <div class="box news"><h2 style="margin-top:0">뉴스 결과</h2><ul>${d[1].map((n, i) => `<li>${esc(n)} ${R.sec.f[i] ? '<span class="fake">[헛소문]</span>' : '<span class="dim">[진짜]</span>'}</li>`).join('')}
-    ${R.rumor ? `<li>${esc(RUMOR_TPL[R.rumor[1] % RUMOR_TPL.length]).replace('{n}', esc(d[2][R.rumor[0]][0]))} <span class="${cls(R.sec.r[R.rumor[0]])}">(${pct(R.sec.r[R.rumor[0]])})</span> ${(R.sec.r[R.rumor[0]] > 0) === RUMOR_GOOD[R.rumor[1] % RUMOR_GOOD.length] ? '<span class="up">[진짜였다]</span>' : '<span class="fake">[헛소문]</span>'}</li>` : ''}</ul></div>
-  ${R.sci ? (() => { const sk = R.sci[0], sr = R.sec.r[sk], ok = sr > 0, T3 = SCI_TPL[R.sci[1] % SCI_TPL.length], st = d[2][sk];
+    ${R.rumor ? `<li>${esc(RUMOR_TPL[R.rumor[1] % RUMOR_TPL.length]).replace('{n}', esc(d[2][R.rumor[0]][0]))} <span class="${cls(R.sec.r[R.rumor[0]])}">(${pct(R.sec.r[R.rumor[0]])})</span> ${R.sec.r[R.rumor[0]] === 0 ? '<span class="dim">[보합… 애매]</span>' : (R.sec.r[R.rumor[0]] > 0) === RUMOR_GOOD[R.rumor[1] % RUMOR_GOOD.length] ? '<span class="up">[진짜였다]</span>' : '<span class="fake">[헛소문]</span>'}</li>` : ''}</ul></div>
+  ${R.sci ? (() => { const sk = R.sci[0], sr = R.sec.r[sk], ok = sr > 0, sf = sr === 0, T3 = SCI_TPL[R.sci[1] % SCI_TPL.length], st = d[2][sk];
     return `<div class="box sci-card ${ok ? 'ok' : 'ng'}">
-    <div class="sci-head"><span>${ok ? '🧪 국장은 과학입니다' : '💥 과학 실패'}</span><span class="tag ${ok ? 'up' : 'down'}">믿거나 말거나</span></div>
+    <div class="sci-head"><span>${ok ? '🧪 국장은 과학입니다' : sf ? '😐 과학… 보류' : '💥 과학 실패'}</span><span class="tag ${ok ? 'up' : 'down'}">믿거나 말거나</span></div>
     <div class="kv"><span>${esc(st[0])}${R.k === sk ? ' <span class="dim">(따라 삼)</span>' : ''}</span><span class="${cls(sr)}">${pct(sr)}</span></div>
     <div class="sci-news dim">"${sciNews(R.sci, st)}"</div>
-    <div class="sci-why">${ok ? '🔬 연결고리: ' + fillSci(T3[1], st) : '🧯 ' + fillSci(T3[2], st)}</div></div>`; })() : ''}
+    <div class="sci-why">${ok ? '🔬 연결고리: ' + fillSci(T3[1], st) : sf ? '🧫 0.00%. 실험 결과 판정 불가, 재현 실험 필요' : '🧯 ' + fillSci(T3[2], st)}</div></div>`; })() : ''}
   <div class="box res-list"><h2 style="margin-top:0">6종목 결과</h2>
     ${rows.map((x) => `<div class="r ${x.i === R.k ? 'me' : ''}"><span>${x.i === R.k ? '내 픽 · ' : ''}${esc(x.s[0])}${tag(x.l)}</span><span class="${cls(x.r)}">${pct(x.r)}</span></div>`).join('')}
   </div>
-  <button class="btn" id="next">${R.isLast ? '최종 결과 보기 🏁' : R.survived ? '다음 날로 🔥' : '결과 보기'}</button>`);
+  <button class="btn" id="next">${R.isLast ? '최종 결과 보기 🏁' : R.flat ? '다음 날로 😐' : R.survived ? '다음 날로 🔥' : '결과 보기'}</button>`);
   drawAnt(mood);
   const rid = RID;
   const fxAfter = () => {
     if (rid !== RID) return;
+    if (R.flat) { flatFx(); return; }
     if (!R.survived) {
       if (R.leadFail) { cinema('jjokbak'); freeze(''); }                    // 리딩방 따라갔다가 설거지
       else if (R.ret <= -10) { cinema(pick(DOWN_CINE)); if (R.ret <= -29) freeze(''); else if (!RM()) shake(); }
@@ -687,6 +690,7 @@ function titles() {
   if (S.jpWin) B.push(`💰잭팟 ${S.jpWin}회`);
   if (S.lead) B.push(`📱리딩방 ${S.lead}번 (${won(S.leadSpend)})`);
   if (S.rumorFollow) B.push(`📰찌라시 따라감 ${S.rumorFollow}회`);
+  if (S.flats) B.push(`😐보합 ${S.flats}회`);
   if (S.sciFollow) B.push(`🧪과학 신봉 ${S.sciFollow}회 (적중 ${S.sciHit || 0})`);
   if (pk > START_CASH) B.push(`🏠${HOMES[homeTier(pk)].name} 찍어봄`);
   [5, 10, 20].filter((m) => c >= m).forEach((m) => B.push(`🏅${m}콤보`));
@@ -877,6 +881,12 @@ function fireworks() {
     f.style.animationDelay = Math.random() * 600 + 'ms'; f.style.setProperty('--h', 80 + Math.random() * 160 + 'px'); L.appendChild(f);
   }
 }
+function flatFx() { // 보합: 회색 화면 + '본전' 도장
+  const L = fxLayer('fx-flat', '<div class="fx-text flat">😐 본전!</div>', RM() ? 1500 : 2200);
+  if (RM()) return;
+  for (let i = 0; i < 14; i++) { const s = document.createElement('div'); s.className = 'zz'; s.textContent = i % 2 ? '…' : 'z';
+    s.style.left = 10 + Math.random() * 80 + '%'; s.style.animationDelay = Math.random() * 800 + 'ms'; L.appendChild(s); }
+}
 function freeze(text) {
   const L = fxLayer('fx-ice', text === '' ? '' : `<div class="fx-text ice">${text || '꽁꽁 얼었다…'}</div>`, RM() ? 1500 : 2600);
   if (RM()) return;
@@ -919,6 +929,6 @@ loadData().then((d) => { DATA = d; if (!S) titleScreen(); })
 
 // 로컬 테스트(Playwright)용 훅. 배포 주소(github.io)에서는 안 생겨요
 if (['localhost', '127.0.0.1'].includes(location.hostname)) {
-  window.__dt = { get S() { return S; }, get DATA() { return DATA; }, reveal, revealHint, idx, day, variant, vIndex, vNo, easyList, turnScreen, startGame, cinema, jackpot, freeze };
+  window.__dt = { get S() { return S; }, get DATA() { return DATA; }, reveal, revealHint, idx, day, variant, vIndex, vNo, easyList, turnScreen, startGame, cinema, jackpot, freeze, settle, resultScreen };
 }
 })();
